@@ -9,6 +9,8 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Queue;
+using System.Configuration;
 
 namespace WorkerRole1
 {
@@ -24,6 +26,15 @@ namespace WorkerRole1
             try
             {
                 this.RunAsync(this.cancellationTokenSource.Token).Wait();
+
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                ConfigurationManager.AppSettings["StorageConnectionString"]);
+                //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                    
+                //    );           
+                CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
+                CloudQueue queue = queueClient.GetQueueReference("myurl");
+                queue.CreateIfNotExists();
             }
             finally
             {

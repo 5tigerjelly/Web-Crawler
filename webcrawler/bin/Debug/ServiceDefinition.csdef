@@ -25,10 +25,10 @@
     </Endpoints>
     <Contents>
       <Content destination=".\">
-        <SourceDirectory path="C:\Users\iGuest\Desktop\webcrawler\webcrawler\rcf\Debug\WebRole1Content\" />
+        <SourceDirectory path="Z:\Desktop\Web-Crawler\webcrawler\rcf\Debug\WebRole1Content\" />
       </Content>
       <Content destination=".\">
-        <SourceDirectory path="C:\Users\iGuest\Desktop\webcrawler\webcrawler\ecf\WebRole1Content\" />
+        <SourceDirectory path="Z:\Desktop\Web-Crawler\webcrawler\ecf\WebRole1Content\" />
       </Content>
     </Contents>
     <Imports>
@@ -41,10 +41,10 @@
     </ConfigurationSettings>
     <Contents>
       <Content destination=".\">
-        <SourceDirectory path="C:\Users\iGuest\Desktop\webcrawler\webcrawler\rcf\Debug\WorkerRole1Content\" />
+        <SourceDirectory path="Z:\Desktop\Web-Crawler\webcrawler\rcf\Debug\WorkerRole1Content\" />
       </Content>
       <Content destination=".\">
-        <SourceDirectory path="C:\Users\iGuest\Desktop\webcrawler\webcrawler\ecf\WorkerRole1Content\" />
+        <SourceDirectory path="Z:\Desktop\Web-Crawler\webcrawler\ecf\WorkerRole1Content\" />
       </Content>
     </Contents>
     <Imports>

@@ -25,7 +25,7 @@ namespace WebRole1
         {
             Queue<string> que = new Queue<string>();
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                ConfigurationManager.AppSettings["StorageConnectionString"]);
+            ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             CloudQueue queue = queueClient.GetQueueReference("myurl");
             queue.CreateIfNotExists();

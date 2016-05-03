@@ -22,7 +22,7 @@
     <Property name="Configuration" value="Debug" />
     <Property name="Platform" value="AnyCPU" />
     <Property name="RoleTargetFramework" value="v4.5.1" />
-    <Property name="OutputDir" value="C:\Users\iGuest\Desktop\webcrawler\webcrawler\obj\Debug\WorkerRole1\" />
+    <Property name="OutputDir" value="Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\" />
     <Property name="EntryPoint" value="WorkerRole1.dll" />
     <Property name="SourceDir" value="" />
     <Property name="SitePhysicalPath" value="" />
