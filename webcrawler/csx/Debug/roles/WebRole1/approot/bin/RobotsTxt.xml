@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RobotsTxt</name>
+    </assembly>
+    <members>
+        <member name="T:RobotsTxt.Sitemap">
+            <summary>
+            Represents a sitemap directive in a robots.txt file.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Sitemap.Url">
+            <summary>
+            The URL to the sitemap.
+            WARNING : This property could be null if the file declared a relative path to the sitemap rather than absolute, which is the standard.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Sitemap.Value">
+            <summary>
+            Gets value of the sitemap directive.
+            </summary>
+        </member>
+        <member name="T:RobotsTxt.AllowRuleImplementation">
+            <summary>
+            Specifies how to handle to Allow rules.
+            </summary>
+        </member>
+        <member name="F:RobotsTxt.AllowRuleImplementation.Standard">
+            <summary>
+            First matching rule will win.
+            </summary>
+        </member>
+        <member name="F:RobotsTxt.AllowRuleImplementation.AllowOverrides">
+            <summary>
+            Disallow rules will only be checked if no allow rule matches.
+            </summary>
+        </member>
+        <member name="F:RobotsTxt.AllowRuleImplementation.MoreSpecific">
+            <summary>
+            The more specific (the longer) rule will apply.
+            </summary>
+        </member>
+        <member name="T:RobotsTxt.Robots">
+            <summary>
+            Provides functionality for parsing a robots.txt file's content and querying the rules and directives inside it.
+            </summary>
+        </member>
+        <member name="M:RobotsTxt.Robots.Load(System.String)">
+            <summary>
+            Initializes a new <see cref="T:RobotsTxt.Robots"/> instance for the given robots.txt file content.
+            </summary>
+        </member>
+        <member name="M:RobotsTxt.Robots.#ctor(System.String)">
+            <summary>
+            Initializes a new <see cref="T:RobotsTxt.Robots"/> instance for the given robots.txt file content.
+            </summary>
+            <param name="content">Content of the robots.txt file.</param>
+        </member>
+        <member name="M:RobotsTxt.Robots.IsPathAllowed(System.String,System.String)">
+            <summary>
+            Checks if the given user-agent can access the given path.
+            </summary>
+            <param name="userAgent">User agent string.</param>
+            <param name="path">Relative path.</param>
+            <exception cref="T:System.ArgumentException">Thrown when userAgent parameter is null, 
+            empty or consists only of white-space characters.</exception>
+        </member>
+        <member name="M:RobotsTxt.Robots.CrawlDelay(System.String)">
+            <summary>
+            Gets the number of milliseconds to wait between successive requests for this robot.
+            </summary>
+            <param name="userAgent">User agent string.</param>
+            <returns>Returns zero if there's not any matching crawl-delay rules for this robot.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when userAgent parameter is null, 
+            empty or consists only of white-space characters.</exception>
+        </member>
+        <member name="P:RobotsTxt.Robots.Raw">
+            <summary>
+            Gets the raw contents of the robots.txt file.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Robots.Sitemaps">
+            <summary>
+            Gets the list of sitemaps declared in the file.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Robots.Malformed">
+            <summary>
+            Indicates whether the file has any lines which can't be understood.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Robots.HasRules">
+            <summary>
+            Indicates whether the file has any rules.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Robots.IsAnyPathDisallowed">
+            <summary>
+            Indicates whether there are any disallowed paths.
+            </summary>
+        </member>
+        <member name="P:RobotsTxt.Robots.AllowRuleImplementation">
+            <summary>
+            How to support the Allow directive. Defaults to <see cref="F:RobotsTxt.AllowRuleImplementation.MoreSpecific"/>.
+            </summary>
+        </member>
+    </members>
+</doc>
