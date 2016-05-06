@@ -21,7 +21,11 @@ namespace WorkerRole1
 
         public override void Run()
         {
-            Trace.TraceInformation("WorkerRole1 is running");
+            while (true)
+            {
+
+            }
+           /* Trace.TraceInformation("WorkerRole1 is running");
 
             try
             {
@@ -39,7 +43,7 @@ namespace WorkerRole1
             finally
             {
                 this.runCompleteEvent.Set();
-            }
+            }*/
         }
 
         public override bool OnStart()

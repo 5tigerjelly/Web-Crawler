@@ -164,3 +164,4 @@ Z:\Desktop\Web-Crawler\WebRole1\bin\Microsoft.Azure.KeyVault.Core.xml
 Z:\Desktop\Web-Crawler\WebRole1\bin\Microsoft.WindowsAzure.Storage.pdb
 Z:\Desktop\Web-Crawler\WebRole1\bin\RobotsTxt.xml
 Z:\Desktop\Web-Crawler\WebRole1\obj\Debug\WebRole1.csprojResolveAssemblyReference.cache
+Z:\Desktop\Web-Crawler\WebRole1\bin\Microsoft.Language.Xml.dll

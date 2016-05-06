@@ -6,6 +6,7 @@ using RobotsTxt;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -27,31 +28,65 @@ namespace WebRole1
         [WebMethod]
         public List<string> startCrawl()
         {
-            /*Queue<string> que = new Queue<string>();
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-            ConfigurationManager.AppSettings["StorageConnectionString"]);
-            CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
-            CloudQueue queue = queueClient.GetQueueReference("myurl");
-            queue.CreateIfNotExists();
+            /*
 
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             queue.AddMessage(message);
             
             
 
-            string content = new WebClient().DownloadString("http://cnn.com/robots.txt");
+            
             Robots robot = Robots.Load(content);*/
-            List<string> resultlist = new List<string>();
+            List<string> allowList = new List<string>();
+            List<string> disallowList = new List<string>();
+            /*Regex regex = new Regex(@"\d+");
             HtmlWeb hw = new HtmlWeb();
-            HtmlDocument doc = hw.Load("http://www.cnn.com/2016/05/05/asia/australia-isis-leader-killed/index.html");
+            HtmlDocument doc = hw.Load("http://bleacherreport.com/nba");
             foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
             {
                 HtmlAttribute att = link.Attributes["href"];
                 resultlist.Add(att.Value);
+            }*/
+            //string content = new WebClient().DownloadString("http://cnn.com/robots.txt");
+
+            CloudQueue queue = getCloudQueue("xmlque");
+
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead("http://cnn.com/robots.txt");
+            StreamReader reader = new StreamReader(stream);
+            while (!reader.EndOfStream)
+            {
+                string temp = reader.ReadLine();
+                if (temp.StartsWith("Sitemap:"))
+                {
+                    temp.Replace("Sitemap: ", "");
+                    CloudQueueMessage message = new CloudQueueMessage(temp);
+                    queue.AddMessage(message);
+                }
+                else if (temp.StartsWith("Disallow:"))
+                {
+                    temp.Replace("Disallow: ", "");
+                    disallowList.Add(temp);
+                }
+                else if (temp.StartsWith("Allow:"))
+                {
+                    temp.Replace("Allow: ", "");
+                    allowList.Add(temp);
+                }
+                
             }
+            //resultlist.Add(content);
             //var root = Parser.ParseText("http://www.cnn.com/sitemaps/sitemap-interactive.xml");
             //root.Name;
-            return resultlist;
+            //regex
+            // ^\/\/.*\..*$ for links without http in the front but has //
+            // ^(http)s?(:\/\/).*$ for links that start with http://
+            // ^.*cnn\.com.*$ for links that has cnn.com (within http or https)
+            // ^.*bleacherreport\.com\/nba.*$ for links that are bleacherreport.com/nba (within http or https)
+            // ^\/[\w|.|\/|-]+$ for relative links that starts with /
+
+
+            return disallowList;
         }
 
         [WebMethod]
@@ -64,7 +99,7 @@ namespace WebRole1
         public string clearIndex()
         {
             //table storage
-            return "Hello World";
+            return "Done Clearing";
         }
 
         [WebMethod]
@@ -73,6 +108,18 @@ namespace WebRole1
             //type in URL
             //grab title of the html from table index
             return "Hello World";
+        }
+
+        private CloudQueue getCloudQueue(string name)
+        {
+            Queue<string> que = new Queue<string>();
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+            ConfigurationManager.AppSettings["StorageConnectionString"]);
+            CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
+            CloudQueue queue = queueClient.GetQueueReference(name);
+            queue.CreateIfNotExists();
+
+            return queue;
         }
     }
 }
