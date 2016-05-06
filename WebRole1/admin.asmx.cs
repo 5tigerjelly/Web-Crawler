@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Services;
+using System.Xml.Linq;
 
 namespace WebRole1
 {
@@ -49,31 +50,43 @@ namespace WebRole1
             }*/
             //string content = new WebClient().DownloadString("http://cnn.com/robots.txt");
 
-            CloudQueue queue = getCloudQueue("xmlque");
+            CloudQueue xmlqueue = getCloudQueue("xmlque");
 
             WebClient client = new WebClient();
             Stream stream = client.OpenRead("http://cnn.com/robots.txt");
             StreamReader reader = new StreamReader(stream);
+            string domain = "http://cnn.com";
             while (!reader.EndOfStream)
             {
                 string temp = reader.ReadLine();
                 if (temp.StartsWith("Sitemap:"))
                 {
-                    temp.Replace("Sitemap: ", "");
+                    //sitemap .xml files
+                    temp = temp.Replace("Sitemap: ", "");
                     CloudQueueMessage message = new CloudQueueMessage(temp);
-                    queue.AddMessage(message);
+                    xmlqueue.AddMessage(message);
                 }
                 else if (temp.StartsWith("Disallow:"))
                 {
-                    temp.Replace("Disallow: ", "");
-                    disallowList.Add(temp);
+                    temp = temp.Replace("Disallow: ", "");
+                    disallowList.Add(domain + temp);
                 }
                 else if (temp.StartsWith("Allow:"))
                 {
-                    temp.Replace("Allow: ", "");
-                    allowList.Add(temp);
+                    temp = temp.Replace("Allow: ", "");
+                    allowList.Add(domain + temp);
                 }
                 
+            }
+
+            while (true)
+            {
+                var tempval = xmlqueue.GetMessage();
+                if (tempval != null)
+                {
+
+                } 
+                break;
             }
             //resultlist.Add(content);
             //var root = Parser.ParseText("http://www.cnn.com/sitemaps/sitemap-interactive.xml");
@@ -99,6 +112,8 @@ namespace WebRole1
         public string clearIndex()
         {
             //table storage
+            CloudQueue xmlqueue = getCloudQueue("xmlque");
+            xmlqueue.Clear();
             return "Done Clearing";
         }
 
@@ -120,6 +135,45 @@ namespace WebRole1
             queue.CreateIfNotExists();
 
             return queue;
+        }
+
+        [WebMethod]
+        public List<string> getXML()
+        {
+            List<string> result = new List<string>();
+            CloudQueue xmlqueue = getCloudQueue("xmlque");
+            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/sitemaps/sitemap-index.xml");
+            xmlqueue.AddMessage(message);
+            while (true)
+            {
+                CloudQueueMessage xmlLink = xmlqueue.GetMessage();
+                if (xmlLink == null) { return result; }
+                //string links = xmlLink.AsString;
+                
+                XElement sitemap = XElement.Load(xmlLink.AsString);
+
+                XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+                XName temp = url;
+                xmlqueue.DeleteMessage(xmlLink);
+                //check if the url isnt used change to sitemap
+                if (sitemap.Elements(temp).Count() == 0) { temp = sitemaps; }
+                foreach (var urlElement in sitemap.Elements(temp))
+                {
+                    string locElement = urlElement.Element(loc).Value;
+                    if (locElement.EndsWith(".xml"))
+                    {
+                        CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                        xmlqueue.AddMessage(message1);
+                    }
+                    else {
+                        //.html or no .html links but not XML links
+                        result.Add(locElement);
+                    }
+                }
+            }
         }
     }
 }
