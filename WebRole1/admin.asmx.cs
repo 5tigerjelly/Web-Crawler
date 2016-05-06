@@ -25,6 +25,10 @@ namespace WebRole1
     // [System.Web.Script.Services.ScriptService]
     public class WebService1 : System.Web.Services.WebService
     {
+        //I think this can be private field outside the method because it 
+        //does not have to do with multithreding.
+        private List<string> allowList;
+        private List<string> disallowList;
 
         [WebMethod]
         public List<string> startCrawl()
@@ -38,8 +42,6 @@ namespace WebRole1
 
             
             Robots robot = Robots.Load(content);*/
-            List<string> allowList = new List<string>();
-            List<string> disallowList = new List<string>();
             /*Regex regex = new Regex(@"\d+");
             HtmlWeb hw = new HtmlWeb();
             HtmlDocument doc = hw.Load("http://bleacherreport.com/nba");
@@ -49,45 +51,13 @@ namespace WebRole1
                 resultlist.Add(att.Value);
             }*/
             //string content = new WebClient().DownloadString("http://cnn.com/robots.txt");
-
+            
             CloudQueue xmlqueue = getCloudQueue("xmlque");
+            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            xmlqueue.AddMessage(message);
 
-            WebClient client = new WebClient();
-            Stream stream = client.OpenRead("http://cnn.com/robots.txt");
-            StreamReader reader = new StreamReader(stream);
-            string domain = "http://cnn.com";
-            while (!reader.EndOfStream)
-            {
-                string temp = reader.ReadLine();
-                if (temp.StartsWith("Sitemap:"))
-                {
-                    //sitemap .xml files
-                    temp = temp.Replace("Sitemap: ", "");
-                    CloudQueueMessage message = new CloudQueueMessage(temp);
-                    xmlqueue.AddMessage(message);
-                }
-                else if (temp.StartsWith("Disallow:"))
-                {
-                    temp = temp.Replace("Disallow: ", "");
-                    disallowList.Add(domain + temp);
-                }
-                else if (temp.StartsWith("Allow:"))
-                {
-                    temp = temp.Replace("Allow: ", "");
-                    allowList.Add(domain + temp);
-                }
-                
-            }
 
-            while (true)
-            {
-                var tempval = xmlqueue.GetMessage();
-                if (tempval != null)
-                {
 
-                } 
-                break;
-            }
             //resultlist.Add(content);
             //var root = Parser.ParseText("http://www.cnn.com/sitemaps/sitemap-interactive.xml");
             //root.Name;
@@ -113,7 +83,11 @@ namespace WebRole1
         {
             //table storage
             CloudQueue xmlqueue = getCloudQueue("xmlque");
+            CloudQueue htmlqueue = getCloudQueue("htmlque");
             xmlqueue.Clear();
+            htmlqueue.Clear();
+            allowList = null;
+            disallowList = null;
             return "Done Clearing";
         }
 
@@ -125,6 +99,7 @@ namespace WebRole1
             return "Hello World";
         }
 
+        //helper method for cloudqueue returns a cloudqueue
         private CloudQueue getCloudQueue(string name)
         {
             Queue<string> que = new Queue<string>();
@@ -138,42 +113,127 @@ namespace WebRole1
         }
 
         [WebMethod]
-        public List<string> getXML()
+        public string getXML()
         {
-            List<string> result = new List<string>();
+            if (allowList == null || disallowList == null)
+            {
+                allowList = new List<string>();
+                disallowList = new List<string>();
+            }
+            //List<string> result = new List<string>();
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/sitemaps/sitemap-index.xml");
-            xmlqueue.AddMessage(message);
+            CloudQueue htmlqueue = getCloudQueue("htmlque");
+            //CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/sitemaps/sitemap-index.xml");
+            //xmlqueue.AddMessage(message);
             while (true)
             {
                 CloudQueueMessage xmlLink = xmlqueue.GetMessage();
-                if (xmlLink == null) { return result; }
-                //string links = xmlLink.AsString;
-                
-                XElement sitemap = XElement.Load(xmlLink.AsString);
-
-                XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
-
-                XName temp = url;
-                xmlqueue.DeleteMessage(xmlLink);
-                //check if the url isnt used change to sitemap
-                if (sitemap.Elements(temp).Count() == 0) { temp = sitemaps; }
-                foreach (var urlElement in sitemap.Elements(temp))
+                if (xmlLink == null) { return "done"; }
+                else if (xmlLink.AsString.EndsWith("robots.txt"))
                 {
-                    string locElement = urlElement.Element(loc).Value;
-                    if (locElement.EndsWith(".xml"))
+                    addRobotstxt(xmlLink.AsString);
+                    xmlqueue.DeleteMessage(xmlLink);
+                }
+                else
+                {
+                    //xml
+                    XElement sitemap = XElement.Load(xmlLink.AsString);
+
+                    XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+                    XName temp = url;
+                    xmlqueue.DeleteMessage(xmlLink);
+                    //check if the url isnt used change to sitemap
+                    if (sitemap.Elements(temp).Count() == 0) { temp = sitemaps; }
+                    foreach (var urlElement in sitemap.Elements(temp))
                     {
-                        CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                        xmlqueue.AddMessage(message1);
-                    }
-                    else {
-                        //.html or no .html links but not XML links
-                        result.Add(locElement);
+                        string locElement = urlElement.Element(loc).Value;
+                        if (locElement.EndsWith(".xml"))
+                        {
+                            CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                            xmlqueue.AddMessage(message1);
+                        }
+                        else {
+                            //.html or no .html links but not XML links
+                            CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                            htmlqueue.AddMessage(message1);
+                        }
                     }
                 }
             }
+        }
+
+        private void addRobotstxt(string robotslink)
+        {
+            CloudQueue xmlqueue = getCloudQueue("xmlque");
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead(robotslink);
+            StreamReader reader = new StreamReader(stream);
+            string domain = robotslink.Replace("/robots.txt", "");
+            while (!reader.EndOfStream)
+            {
+                string temp = reader.ReadLine();
+                if (temp.StartsWith("Sitemap:"))
+                {
+                    //sitemap .xml files
+                    temp = temp.Replace("Sitemap: ", "");
+                    CloudQueueMessage message = new CloudQueueMessage(temp);
+                    xmlqueue.AddMessage(message);
+                }
+                else if (temp.StartsWith("Disallow:"))
+                {
+                    temp = temp.Replace("Disallow: ", "");
+                    disallowList.Add(domain + temp);
+                }
+                else if (temp.StartsWith("Allow:"))
+                {
+                    temp = temp.Replace("Allow: ", "");
+                    allowList.Add(domain + temp);
+                }
+
+            }
+        }
+
+        [WebMethod]
+        public string exportxmlQue()
+        {
+            CloudQueue xmlqueue = getCloudQueue("xmlque");
+            using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/quelist.txt"))
+            {
+                while (true)
+                {
+                    CloudQueueMessage xmlLink = xmlqueue.GetMessage();
+                    if (xmlLink != null)
+                    {
+                        writer.WriteLine(xmlLink.AsString);
+                    }
+                    else { break; }
+                }
+            }
+            return "done";
+
+        }
+
+        [WebMethod]
+        public string exporthtmlQue()
+        {
+            CloudQueue xmlqueue = getCloudQueue("htmlque");
+            using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/htmlist.txt"))
+            {
+                while (true)
+                {
+                    CloudQueueMessage xmlLink = xmlqueue.GetMessage();
+                    if (xmlLink != null)
+                    {
+                        writer.WriteLine(xmlLink.AsString);
+                    }
+                    else { break; }
+                }
+            }
+            return "done";
+
         }
     }
 }
