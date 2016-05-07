@@ -123,8 +123,8 @@ namespace WebRole1
             //List<string> result = new List<string>();
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            //CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/sitemaps/sitemap-index.xml");
-            //xmlqueue.AddMessage(message);
+            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            xmlqueue.AddMessage(message);
             while (true)
             {
                 CloudQueueMessage xmlLink = xmlqueue.GetMessage();
@@ -143,13 +143,8 @@ namespace WebRole1
                     XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName time = XName.Get("lastmod", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                    //XName newsname = ;
-                    //XName newspubdate = "news:publication_date";
-
-                    // FIX THIS!! find out how to fix XML namespace
-
-                    XName news = XName.Get("news:news", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                    XName newspubdate = XName.Get("news:publication_date", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    XName news = XName.Get("news", "http://www.google.com/schemas/sitemap-news/0.9");
+                    XName newspubdate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-news/0.9");
                     string currentLink; //delete later
                     XName temp = url;
                     DateTime fixedDate = new DateTime(2016, 3, 1);
@@ -167,9 +162,9 @@ namespace WebRole1
                         }
                         else
                         {
-                            pubdate = DateTime.Parse(urlElement.Element(newsname).Element(newspubdate).Value);
+                            pubdate = DateTime.Parse(urlElement.Element(news).Element(newspubdate).Value);
                         }
-                        
+
                         if (fixedDate < pubdate)
                         {
                             if (locElement.EndsWith(".xml"))
