@@ -53,7 +53,7 @@ namespace WebRole1
             //string content = new WebClient().DownloadString("http://cnn.com/robots.txt");
             
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             xmlqueue.AddMessage(message);
 
 
@@ -142,23 +142,47 @@ namespace WebRole1
                     XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    XName time = XName.Get("lastmod", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    //XName newsname = ;
+                    //XName newspubdate = "news:publication_date";
 
+                    // FIX THIS!! find out how to fix XML namespace
+
+                    XName news = XName.Get("news:news", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    XName newspubdate = XName.Get("news:publication_date", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    string currentLink; //delete later
                     XName temp = url;
+                    DateTime fixedDate = new DateTime(2016, 3, 1);
                     xmlqueue.DeleteMessage(xmlLink);
                     //check if the url isnt used change to sitemap
                     if (sitemap.Elements(temp).Count() == 0) { temp = sitemaps; }
+                    DateTime pubdate;
                     foreach (var urlElement in sitemap.Elements(temp))
                     {
                         string locElement = urlElement.Element(loc).Value;
-                        if (locElement.EndsWith(".xml"))
+                        currentLink = xmlLink.AsString;
+                        if (urlElement.Element(time) != null)
                         {
-                            CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                            xmlqueue.AddMessage(message1);
+                            pubdate = DateTime.Parse(urlElement.Element(time).Value);
                         }
-                        else {
-                            //.html or no .html links but not XML links
-                            CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                            htmlqueue.AddMessage(message1);
+                        else
+                        {
+                            pubdate = DateTime.Parse(urlElement.Element(newsname).Element(newspubdate).Value);
+                        }
+                        
+                        if (fixedDate < pubdate)
+                        {
+                            if (locElement.EndsWith(".xml"))
+                            {
+                                CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                                xmlqueue.AddMessage(message1);
+                            }
+                            else
+                            {
+                                //.html or no .html links but not XML links
+                                CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                                htmlqueue.AddMessage(message1);
+                            }
                         }
                     }
                 }
