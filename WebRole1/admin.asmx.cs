@@ -84,8 +84,10 @@ namespace WebRole1
             //table storage
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
+            CloudQueue totalxml = getCloudQueue("totalxml");
             xmlqueue.Clear();
             htmlqueue.Clear();
+            totalxml.Clear();
             allowList = null;
             disallowList = null;
             return "Done Clearing";
@@ -113,22 +115,23 @@ namespace WebRole1
         }
 
         [WebMethod]
-        public string getXML()
+        public string getXML(string urladdress)
         {
+            clearIndex(); //delete this later!!!!!!!!!!!!!!
             if (allowList == null || disallowList == null)
             {
                 allowList = new List<string>();
                 disallowList = new List<string>();
             }
-            //List<string> result = new List<string>();
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            CloudQueue totalxml = getCloudQueue("totalxml");
+            CloudQueueMessage message = new CloudQueueMessage(urladdress);
             xmlqueue.AddMessage(message);
             while (true)
             {
                 CloudQueueMessage xmlLink = xmlqueue.GetMessage();
-                if (xmlLink == null) { return "done"; }
+                if (xmlLink == null) { break; }
                 else if (xmlLink.AsString.EndsWith("robots.txt"))
                 {
                     addRobotstxt(xmlLink.AsString);
@@ -138,6 +141,7 @@ namespace WebRole1
                 {
                     //xml
                     XElement sitemap = XElement.Load(xmlLink.AsString);
+                    xmlqueue.DeleteMessage(xmlLink);
 
                     XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
@@ -145,24 +149,33 @@ namespace WebRole1
                     XName time = XName.Get("lastmod", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName news = XName.Get("news", "http://www.google.com/schemas/sitemap-news/0.9");
                     XName newspubdate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-news/0.9");
-                    string currentLink; //delete later
+                    XName video = XName.Get("video", "http://www.google.com/schemas/sitemap-video/1.1");
+                    XName videopuddate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-video/1.1");
                     XName temp = url;
                     DateTime fixedDate = new DateTime(2016, 3, 1);
-                    xmlqueue.DeleteMessage(xmlLink);
+                    
                     //check if the url isnt used change to sitemap
                     if (sitemap.Elements(temp).Count() == 0) { temp = sitemaps; }
                     DateTime pubdate;
                     foreach (var urlElement in sitemap.Elements(temp))
                     {
                         string locElement = urlElement.Element(loc).Value;
-                        currentLink = xmlLink.AsString;
                         if (urlElement.Element(time) != null)
                         {
                             pubdate = DateTime.Parse(urlElement.Element(time).Value);
                         }
-                        else
+                        else if (urlElement.Element(news) != null)
                         {
                             pubdate = DateTime.Parse(urlElement.Element(news).Element(newspubdate).Value);
+                        }
+                        else if (urlElement.Element(video) != null)
+                        {
+                            pubdate = DateTime.Parse(urlElement.Element(video).Element(videopuddate).Value);
+                        }
+                        else
+                        {
+                            //no date found, just add
+                            pubdate = DateTime.Today;
                         }
 
                         if (fixedDate < pubdate)
@@ -171,6 +184,7 @@ namespace WebRole1
                             {
                                 CloudQueueMessage message1 = new CloudQueueMessage(locElement);
                                 xmlqueue.AddMessage(message1);
+                                totalxml.AddMessage(message1);
                             }
                             else
                             {
@@ -182,6 +196,7 @@ namespace WebRole1
                     }
                 }
             }
+            return "done";
         }
 
         private void addRobotstxt(string robotslink)
@@ -190,7 +205,8 @@ namespace WebRole1
             WebClient client = new WebClient();
             Stream stream = client.OpenRead(robotslink);
             StreamReader reader = new StreamReader(stream);
-            string domain = robotslink.Replace("/robots.txt", "");
+            //string domain = robotslink.Replace("/robots.txt", "");
+            Uri domain = new Uri(robotslink);
             while (!reader.EndOfStream)
             {
                 string temp = reader.ReadLine();
@@ -204,19 +220,19 @@ namespace WebRole1
                 else if (temp.StartsWith("Disallow:"))
                 {
                     temp = temp.Replace("Disallow: ", "");
-                    disallowList.Add(domain + temp);
+                    disallowList.Add(domain.Host + temp);
                 }
                 else if (temp.StartsWith("Allow:"))
                 {
                     temp = temp.Replace("Allow: ", "");
-                    allowList.Add(domain + temp);
+                    allowList.Add(domain.Host + temp);
                 }
 
             }
         }
 
         [WebMethod]
-        public string exportxmlQue()
+        public string exportQue()
         {
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/quelist.txt"))
@@ -231,14 +247,22 @@ namespace WebRole1
                     else { break; }
                 }
             }
-            return "done";
 
-        }
+            xmlqueue = getCloudQueue("totalxml");
+            using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/totalXML.txt"))
+            {
+                while (true)
+                {
+                    CloudQueueMessage xmlLink = xmlqueue.GetMessage();
+                    if (xmlLink != null)
+                    {
+                        writer.WriteLine(xmlLink.AsString);
+                    }
+                    else { break; }
+                }
+            }
 
-        [WebMethod]
-        public string exporthtmlQue()
-        {
-            CloudQueue xmlqueue = getCloudQueue("htmlque");
+            xmlqueue = getCloudQueue("htmlque");
             using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/htmlist.txt"))
             {
                 while (true)
@@ -251,8 +275,57 @@ namespace WebRole1
                     else { break; }
                 }
             }
-            return "done";
 
+            
+            return "done";
+        }
+
+        [WebMethod]
+        public List<string> getHref(string urladdress)
+        {
+            List<string> result = new List<string>();
+            clearIndex(); //delete this later!!!!!!!!!!!!!!
+            if (allowList == null || disallowList == null)
+            {
+                allowList = new List<string>();
+                disallowList = new List<string>();
+            }
+            CloudQueue htmlqueue = getCloudQueue("htmlque");
+            CloudQueueMessage message = new CloudQueueMessage(urladdress);
+            htmlqueue.AddMessage(message);
+            HtmlWeb hw = new HtmlWeb();
+            HtmlDocument webpage;
+            Uri currentUri;
+            while (true)
+            {
+                CloudQueueMessage xmlLink = htmlqueue.GetMessage();
+                if (xmlLink == null) { break; }
+                else
+                {
+                    webpage = hw.Load(xmlLink.AsString);
+                    foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
+                    {
+                        HtmlAttribute att = link.Attributes["href"];
+                        string templink = att.Value;
+                        if (templink.StartsWith("//"))
+                        {
+                            templink = "http:" + templink;
+                        } else if (templink.StartsWith("/"))
+                        {
+                            currentUri = new Uri(xmlLink.AsString);
+                            templink = "http://" + currentUri.Host + templink;
+                        }
+
+                        if (templink.StartsWith("http") && (templink.Contains("cnn.com") 
+                            || templink.Contains("bleacherreport.com/nba")))
+                        {
+                            result.Add(templink);
+                        }
+                    }
+                }
+                htmlqueue.DeleteMessage(xmlLink);
+            }
+            return result;
         }
     }
 }

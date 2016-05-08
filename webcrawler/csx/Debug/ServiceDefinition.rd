@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<serviceModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="webcrawler" generation="1" functional="0" release="0" Id="1a10b788-124b-454d-ac29-9f8ec15b5ec0" dslVersion="1.2.0.0" xmlns="http://schemas.microsoft.com/dsltools/RDSM">
+<serviceModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="webcrawler" generation="1" functional="0" release="0" Id="d2aba100-e85b-450d-92f6-c75f505c0a12" dslVersion="1.2.0.0" xmlns="http://schemas.microsoft.com/dsltools/RDSM">
   <groups>
     <group name="webcrawlerGroup" generation="1" functional="0" release="0">
       <componentports>
@@ -110,9 +110,9 @@
     </group>
   </groups>
   <implements>
-    <implementation Id="d2617687-fa87-468f-bd0a-89f90934f7f2" ref="Microsoft.RedDog.Contract\ServiceContract\webcrawlerContract@ServiceDefinition">
+    <implementation Id="f49666b0-1ce9-4b3d-8e78-fcdbee55073a" ref="Microsoft.RedDog.Contract\ServiceContract\webcrawlerContract@ServiceDefinition">
       <interfacereferences>
-        <interfaceReference Id="142c67b3-cd16-489a-b8ab-8daa6db9734e" ref="Microsoft.RedDog.Contract\Interface\WebRole1:Endpoint1@ServiceDefinition">
+        <interfaceReference Id="7a964b05-8be9-45c7-951f-a1452e4c0243" ref="Microsoft.RedDog.Contract\Interface\WebRole1:Endpoint1@ServiceDefinition">
           <inPort>
             <inPortMoniker name="/webcrawler/webcrawlerGroup/WebRole1:Endpoint1" />
           </inPort>
