@@ -2,6 +2,7 @@
 using Microsoft.Language.Xml;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
+using Microsoft.WindowsAzure.Storage.Table;
 using RobotsTxt;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace WebRole1
         private List<string> disallowList;
 
         [WebMethod]
-        public List<string> startCrawl()
+        public string startCrawl(string address)
         {
             /*
 
@@ -51,9 +52,15 @@ namespace WebRole1
                 resultlist.Add(att.Value);
             }*/
             //string content = new WebClient().DownloadString("http://cnn.com/robots.txt");
-            
+
+            if (!address.StartsWith("http"))
+            {
+                address = "http://" + address;
+            }
+            Uri rootdomain = new Uri(address);
+            string result = rootdomain.GetLeftPart(UriPartial.Authority) + "/robots.txt";
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
+            CloudQueueMessage message = new CloudQueueMessage(result);
             xmlqueue.AddMessage(message);
 
 
@@ -69,7 +76,7 @@ namespace WebRole1
             // ^\/[\w|.|\/|-]+$ for relative links that starts with /
 
 
-            return disallowList;
+            return result;
         }
 
         [WebMethod]
@@ -114,10 +121,23 @@ namespace WebRole1
             return queue;
         }
 
+        private CloudTable getCloudTable(string name)
+        {
+            Queue<string> que = new Queue<string>();
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+            ConfigurationManager.AppSettings["StorageConnectionString"]);
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(name);
+            table.CreateIfNotExists();
+
+            return table;
+        }
+
         [WebMethod]
         public string getXML(string urladdress)
         {
             clearIndex(); //delete this later!!!!!!!!!!!!!!
+            HashSet<string> htmllist = new HashSet<string>();
             if (allowList == null || disallowList == null)
             {
                 allowList = new List<string>();
@@ -128,6 +148,7 @@ namespace WebRole1
             CloudQueue totalxml = getCloudQueue("totalxml");
             CloudQueueMessage message = new CloudQueueMessage(urladdress);
             xmlqueue.AddMessage(message);
+            int tempcount = 0;
             while (true)
             {
                 CloudQueueMessage xmlLink = xmlqueue.GetMessage();
@@ -144,6 +165,7 @@ namespace WebRole1
                     xmlqueue.DeleteMessage(xmlLink);
 
                     XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                    XName urlX = XName.Get("url", "http://www.google.com/schemas/sitemap/0.9");
                     XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
                     XName time = XName.Get("lastmod", "http://www.sitemaps.org/schemas/sitemap/0.9");
@@ -153,9 +175,10 @@ namespace WebRole1
                     XName videopuddate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-video/1.1");
                     XName temp = url;
                     DateTime fixedDate = new DateTime(2016, 3, 1);
-                    
-                    //check if the url isnt used change to sitemap
+
+                    //check if the url isnt used, then change to sitemap
                     if (sitemap.Elements(temp).Count() == 0) { temp = sitemaps; }
+                    else if (sitemap.Elements(temp).Count() == 0) { temp = urlX; }
                     DateTime pubdate;
                     foreach (var urlElement in sitemap.Elements(temp))
                     {
@@ -178,6 +201,7 @@ namespace WebRole1
                             pubdate = DateTime.Today;
                         }
 
+                        //check if younger than 2 months
                         if (fixedDate < pubdate)
                         {
                             if (locElement.EndsWith(".xml"))
@@ -189,8 +213,20 @@ namespace WebRole1
                             else
                             {
                                 //.html or no .html links but not XML links
-                                CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                                htmlqueue.AddMessage(message1);
+                                if (locElement.Equals("http://www.cnn.com/profiles/thom-patterson-profile"))
+                                {
+                                    tempcount++;
+                                    if (tempcount == 3)
+                                    {
+                                        string what = "the_heck";
+                                    }
+                                }
+                                if (!htmllist.Contains(locElement))
+                                {
+                                    htmllist.Add(locElement);
+                                    CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                                    htmlqueue.AddMessage(message1);
+                                }
                             }
                         }
                     }
@@ -202,6 +238,7 @@ namespace WebRole1
         private void addRobotstxt(string robotslink)
         {
             CloudQueue xmlqueue = getCloudQueue("xmlque");
+            CloudQueue totalxml = getCloudQueue("totalxml");
             WebClient client = new WebClient();
             Stream stream = client.OpenRead(robotslink);
             StreamReader reader = new StreamReader(stream);
@@ -216,6 +253,8 @@ namespace WebRole1
                     temp = temp.Replace("Sitemap: ", "");
                     CloudQueueMessage message = new CloudQueueMessage(temp);
                     xmlqueue.AddMessage(message);
+                    totalxml.AddMessage(message);
+
                 }
                 else if (temp.StartsWith("Disallow:"))
                 {
@@ -227,7 +266,6 @@ namespace WebRole1
                     temp = temp.Replace("Allow: ", "");
                     allowList.Add(domain.Host + temp);
                 }
-
             }
         }
 
@@ -284,46 +322,90 @@ namespace WebRole1
         public List<string> getHref(string urladdress)
         {
             List<string> result = new List<string>();
+            HashSet<string> urlList = new HashSet<string>();
             clearIndex(); //delete this later!!!!!!!!!!!!!!
             if (allowList == null || disallowList == null)
             {
                 allowList = new List<string>();
                 disallowList = new List<string>();
             }
+            CloudTable table = getCloudTable("resulttable");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
             CloudQueueMessage message = new CloudQueueMessage(urladdress);
             htmlqueue.AddMessage(message);
             HtmlWeb hw = new HtmlWeb();
             HtmlDocument webpage;
             Uri currentUri;
+            pagetitle urlTableElement;
             while (true)
             {
                 CloudQueueMessage xmlLink = htmlqueue.GetMessage();
                 if (xmlLink == null) { break; }
-                else
+                else if (!urlList.Contains(xmlLink.AsString))
                 {
+                    urlList.Add(xmlLink.AsString);
                     webpage = hw.Load(xmlLink.AsString);
-                    foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
+                    if (hw.StatusCode == HttpStatusCode.OK)
                     {
-                        HtmlAttribute att = link.Attributes["href"];
-                        string templink = att.Value;
-                        if (templink.StartsWith("//"))
-                        {
-                            templink = "http:" + templink;
-                        } else if (templink.StartsWith("/"))
-                        {
-                            currentUri = new Uri(xmlLink.AsString);
-                            templink = "http://" + currentUri.Host + templink;
-                        }
+                        HtmlNode pagetitle = webpage.DocumentNode.SelectSingleNode("//head/title");
+                        string pagetitlestring = pagetitle.InnerText;
+                        HtmlNode pubdate = webpage.DocumentNode.SelectSingleNode("//head/meta[@name='lastmod']");
+                        DateTime pubdate1 = DateTime.Parse(pubdate.Attributes["content"].Value);
 
-                        if (templink.StartsWith("http") && (templink.Contains("cnn.com") 
-                            || templink.Contains("bleacherreport.com/nba")))
+                        urlTableElement = new pagetitle(pagetitlestring, xmlLink.AsString, pubdate1);
+                        TableOperation insertOp = TableOperation.Insert(urlTableElement);
+                        table.Execute(insertOp);
+
+                        foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                         {
-                            result.Add(templink);
+                            string templink = link.Attributes["href"].Value;
+                            if (templink.StartsWith("//"))
+                            {
+                                templink = "http:" + templink;
+                            }
+                            else if (templink.StartsWith("/"))
+                            {
+                                currentUri = new Uri(xmlLink.AsString);
+                                templink = "http://" + currentUri.Host + templink;
+                            }
+
+                            if (templink.StartsWith("http") && (templink.Contains("cnn.com")
+                                || templink.Contains("bleacherreport.com/nba")))
+                            {
+                                if (!urlList.Contains(templink))
+                                {
+                                    urlList.Add(templink);
+                                    result.Add(templink);
+                                    CloudQueueMessage message1 = new CloudQueueMessage(templink);
+                                    htmlqueue.AddMessage(message1);
+                                }
+                                
+                            }
                         }
+                    }
+                    else
+                    {
+                        //404 or website not found error
+                        urlTableElement = new pagetitle(xmlLink.AsString);
+                        TableOperation insertOp = TableOperation.Insert(urlTableElement);
+                        table.Execute(insertOp);
                     }
                 }
                 htmlqueue.DeleteMessage(xmlLink);
+            }
+            return result;
+        }
+
+        [WebMethod]
+        public List<string> readTable()
+        {
+            List<string> result = new List<string>();
+            CloudTable table = getCloudTable("resulttable");
+            TableQuery<pagetitle> rangequery = new TableQuery<pagetitle>()
+                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, "error"));
+            foreach (pagetitle entaty in table.ExecuteQuery(rangequery))
+            {
+                result.Add(entaty.PartitionKey +" "+ entaty.urlLink +" "+ entaty.pubdate);
             }
             return result;
         }
