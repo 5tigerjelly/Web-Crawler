@@ -18,17 +18,21 @@ namespace WebRole1
             this.Timestamp = DateTime.Now;
         }
 
-        public pagetitle(string title, string address, DateTime date)
+        public pagetitle(string title, string address, DateTime date, int count)
         {
-            this.PartitionKey = title;
+
+            this.PartitionKey = "title";
             this.RowKey = Guid.NewGuid().ToString();
+            this.title = title;
             this.urlLink = address;
             this.pubdate = date;
             this.Timestamp = DateTime.Now;
+            this.count = count;
         }
 
         public string urlLink { get; set; }
-
         public DateTime pubdate { get; set; }
+        public string title { get; set; }
+        public int count { get; set; }
     }
 }

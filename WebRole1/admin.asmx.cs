@@ -44,6 +44,8 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage(result);
             xmlqueue.AddMessage(message);
+            getXML();
+            getHref();
 
 
 
@@ -116,9 +118,9 @@ namespace WebRole1
         }
 
         [WebMethod]
-        public string getXML(string urladdress)
+        public string getXML()
         {
-            clearIndex(); //delete this later!!!!!!!!!!!!!!
+            //clearIndex(); //delete this later!!!!!!!!!!!!!!
             HashSet<string> htmllist = new HashSet<string>();
             if (allowList == null || disallowList == null)
             {
@@ -128,8 +130,8 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
             CloudQueue totalxml = getCloudQueue("totalxml");
-            CloudQueueMessage message = new CloudQueueMessage(urladdress);
-            xmlqueue.AddMessage(message);
+            //CloudQueueMessage message = new CloudQueueMessage(urladdress);
+            //xmlqueue.AddMessage(message);
             int tempcount = 0;
             while (true)
             {
@@ -252,79 +254,32 @@ namespace WebRole1
         }
 
         [WebMethod]
-        public string exportQue()
-        {
-            CloudQueue xmlqueue = getCloudQueue("xmlque");
-            using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/quelist.txt"))
-            {
-                while (true)
-                {
-                    CloudQueueMessage xmlLink = xmlqueue.GetMessage();
-                    if (xmlLink != null)
-                    {
-                        writer.WriteLine(xmlLink.AsString);
-                    }
-                    else { break; }
-                }
-            }
-
-            xmlqueue = getCloudQueue("totalxml");
-            using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/totalXML.txt"))
-            {
-                while (true)
-                {
-                    CloudQueueMessage xmlLink = xmlqueue.GetMessage();
-                    if (xmlLink != null)
-                    {
-                        writer.WriteLine(xmlLink.AsString);
-                    }
-                    else { break; }
-                }
-            }
-
-            xmlqueue = getCloudQueue("htmlque");
-            using (StreamWriter writer = new StreamWriter("C:/Users/iGuest/Desktop/htmlist.txt"))
-            {
-                while (true)
-                {
-                    CloudQueueMessage xmlLink = xmlqueue.GetMessage();
-                    if (xmlLink != null)
-                    {
-                        writer.WriteLine(xmlLink.AsString);
-                    }
-                    else { break; }
-                }
-            }
-
-            
-            return "done";
-        }
-
-        [WebMethod]
-        public List<string> getHref(string urladdress)
+        public List<string> getHref()
         {
             List<string> result = new List<string>();
             HashSet<string> urlList = new HashSet<string>();
             HashSet<string> tableList = new HashSet<string>();
-            clearIndex(); //delete this later!!!!!!!!!!!!!!
+            //clearIndex(); //delete this later!!!!!!!!!!!!!!
             CloudTable table = getCloudTable("resulttable");
             CloudTable errortable = getCloudTable("errortable");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            CloudQueueMessage message = new CloudQueueMessage(urladdress);
-            htmlqueue.AddMessage(message);
+            //CloudQueueMessage message = new CloudQueueMessage(urladdress);
+            //htmlqueue.AddMessage(message);
             HtmlWeb hw = new HtmlWeb();
             HtmlDocument webpage;
             Uri currentUri;
             pagetitle urlTableElement;
+            int count = 0;
             while (true)
             {
-                Thread.Sleep(500);
+                
                 CloudQueueMessage xmlLink = htmlqueue.GetMessage();
                 if (xmlLink == null) { break; }
                 else if (!tableList.Contains(xmlLink.AsString))
                 {
                     tableList.Add(xmlLink.AsString);
                     webpage = hw.Load(xmlLink.AsString);
+                    Thread.Sleep(100);
                     if (hw.StatusCode == HttpStatusCode.OK)
                     {
                         DateTime pubdate1;
@@ -342,39 +297,57 @@ namespace WebRole1
                                 pubdate1 = DateTime.Today;
                             }
 
-
-                            urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1);
+                            count++;
+                            urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1, count);
                             TableOperation insertOp = TableOperation.Insert(urlTableElement);
                             table.Execute(insertOp);
-
-                            foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
-                            {
-                                string templink = link.Attributes["href"].Value;
-                                if (templink.StartsWith("//"))
+                            if (webpage.DocumentNode.SelectNodes("//a[@href]") != null) {
+                                foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                 {
-                                    templink = "http:" + templink;
-                                }
-                                else if (templink.StartsWith("/"))
-                                {
-                                    currentUri = new Uri(xmlLink.AsString);
-                                    templink = "http://" + currentUri.Host + templink;
-                                }
-
-                                if (templink.StartsWith("http") && (templink.Contains("cnn.com")
-                                    || templink.Contains("bleacherreport.com/nba")))
-                                {
-                                    if (!urlList.Contains(templink))
+                                    string templink = link.Attributes["href"].Value;
+                                    if (templink.StartsWith("//"))
                                     {
-                                        urlList.Add(templink);
-                                        result.Add(templink);
-                                        CloudQueueMessage message1 = new CloudQueueMessage(templink);
-                                        htmlqueue.AddMessage(message1);
+                                        templink = "http:" + templink;
+                                    }
+                                    else if (templink.StartsWith("/"))
+                                    {
+                                        currentUri = new Uri(xmlLink.AsString);
+                                        templink = "http://" + currentUri.Host + templink;
                                     }
 
+                                    if (templink.StartsWith("http") && (templink.Contains("cnn.com")
+                                        || templink.Contains("bleacherreport.com/nba")))
+                                    {
+                                        if (!urlList.Contains(templink))
+                                        {
+                                            bool checkdisallow = true;
+                                            foreach (string disallowlink in disallowList)
+                                            {
+                                                if (templink.Contains(disallowlink))
+                                                {
+                                                    checkdisallow = false;
+                                                    foreach (string allowlink in allowList)
+                                                    {
+                                                        if (templink.Contains(allowlink))
+                                                        {
+                                                            checkdisallow = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (checkdisallow)
+                                            {
+                                                urlList.Add(templink);
+                                                result.Add(templink);
+                                                CloudQueueMessage message1 = new CloudQueueMessage(templink);
+                                                htmlqueue.AddMessage(message1);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-                        else
+                        /*else
                         {
                             //redirecting page with no title
                             string newpage = webpage.DocumentNode.SelectSingleNode("//head/link").Attributes["href"].Value;
@@ -390,7 +363,7 @@ namespace WebRole1
                                 }
 
                             }
-                        }
+                        }*/
                         
                         
                     }
@@ -399,7 +372,7 @@ namespace WebRole1
                         //404 or website not found error
                         urlTableElement = new pagetitle(xmlLink.AsString);
                         TableOperation insertOp = TableOperation.Insert(urlTableElement);
-                        table.Execute(insertOp);
+                        errortable.Execute(insertOp);
                     }
                 }
                 htmlqueue.DeleteMessage(xmlLink);
@@ -420,5 +393,16 @@ namespace WebRole1
             }
             return result;
         }
+
+        /*[WebMethod]
+        public string getpageTitle()
+        {
+            CloudTable table = getCloudTable("resulttable");
+            TableQuery<pagetitle> rangequery = new TableQuery<pagetitle>()
+                .OrderByDescending();
+
+        var query = from title in table
+            return "done";
+        }*/
     }
 }
