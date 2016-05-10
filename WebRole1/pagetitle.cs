@@ -15,6 +15,7 @@ namespace WebRole1
             this.RowKey = Guid.NewGuid().ToString();
             this.urlLink = address;
             this.pubdate = DateTime.Today;
+            this.Timestamp = DateTime.Now;
         }
 
         public pagetitle(string title, string address, DateTime date)
@@ -23,6 +24,7 @@ namespace WebRole1
             this.RowKey = Guid.NewGuid().ToString();
             this.urlLink = address;
             this.pubdate = date;
+            this.Timestamp = DateTime.Now;
         }
 
         public string urlLink { get; set; }
