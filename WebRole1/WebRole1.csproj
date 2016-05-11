@@ -132,13 +132,18 @@
     <Content Include="admin.asmx" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="pagetitle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRole.cs" />
     <Compile Include="admin.asmx.cs">
       <DependentUpon>admin.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.csproj">
+      <Project>{b6b4eeb1-8cab-4018-9b65-3dcff3496bec}</Project>
+      <Name>ClassLibrary1</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

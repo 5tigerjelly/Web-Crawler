@@ -1,7 +1,11 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace WorkerRole1
+namespace ClassLibrary1
 {
     public class pagetitle : TableEntity
     {
@@ -9,22 +13,16 @@ namespace WorkerRole1
         public pagetitle(string address)
         {
             this.PartitionKey = "error";
-            this.RowKey = Guid.NewGuid().ToString();
-            this.urlLink = address;
+            this.RowKey = address;
             this.pubdate = DateTime.Today;
-            this.Timestamp = DateTime.Now;
         }
 
-        public pagetitle(string title, string address, DateTime date, int count)
+        public pagetitle(string title, string address, DateTime date)
         {
-
             this.PartitionKey = "title";
-            this.RowKey = Guid.NewGuid().ToString();
+            this.RowKey = address;
             this.title = title;
-            this.urlLink = address;
             this.pubdate = date;
-            this.Timestamp = DateTime.Now;
-            this.count = count;
         }
 
         public string urlLink { get; set; }

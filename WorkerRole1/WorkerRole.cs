@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using Microsoft.WindowsAzure.Storage.Table;
 using HtmlAgilityPack;
 using System.IO;
+using ClassLibrary1;
 
 namespace WorkerRole1
 {
@@ -25,28 +26,39 @@ namespace WorkerRole1
         private List<string> disallowList;
         public override void Run()
         {
+            bool checkstoporgo = false;
             while (true)
             {
-                getXML();
-                getHref();
+                checkstoporgo = getXML(checkstoporgo);
+                checkstoporgo = getHref(checkstoporgo);
             }
         }
 
-        public string getXML()
+        private bool checkgostop(bool currentstate)
         {
-            //clearIndex(); //delete this later!!!!!!!!!!!!!!
-            HashSet<string> htmllist = new HashSet<string>();
-            if (allowList == null || disallowList == null)
+            CloudQueue stopgo = getCloudQueue("stopgo");
+            CloudQueueMessage stoporgo = stopgo.GetMessage();
+            if (stoporgo == null)
             {
-                allowList = new List<string>();
-                disallowList = new List<string>();
+                return currentstate;
             }
+            else if (stoporgo.AsString == "go")
+            {
+                stopgo.DeleteMessage(stoporgo);
+                return true;
+            }
+            else
+            {
+                stopgo.DeleteMessage(stoporgo);
+                return false;
+            }
+        }
+        public bool getXML(bool check)
+        {
+            HashSet<string> htmllist = new HashSet<string>();
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            //CloudQueueMessage message = new CloudQueueMessage(urladdress);
-            //xmlqueue.AddMessage(message);
-            int tempcount = 0;
-            while (true)
+            while (check)
             {
                 Thread.Sleep(100);
                 CloudQueueMessage xmlLink = xmlqueue.GetMessage();
@@ -120,12 +132,18 @@ namespace WorkerRole1
                         }
                     }
                 }
+                check = checkgostop(check);
             }
-            return "done";
+            return check;
         }
 
         private void addRobotstxt(string robotslink)
         {
+            if (allowList == null || disallowList == null)
+            {
+                allowList = new List<string>();
+                disallowList = new List<string>();
+            }
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             WebClient client = new WebClient();
             Stream stream = client.OpenRead(robotslink);
@@ -155,7 +173,7 @@ namespace WorkerRole1
             }
         }
 
-        public List<string> getHref()
+        public bool getHref(bool check)
         {
             List<string> result = new List<string>();
             HashSet<string> urlList = new HashSet<string>();
@@ -167,8 +185,7 @@ namespace WorkerRole1
             HtmlDocument webpage;
             Uri currentUri;
             pagetitle urlTableElement;
-            int count = 0;
-            while (true)
+            while (check)
             {
                 Thread.Sleep(100);
                 CloudQueueMessage xmlLink = htmlqueue.GetMessage();
@@ -194,8 +211,7 @@ namespace WorkerRole1
                                 pubdate1 = DateTime.Today;
                             }
 
-                            count++;
-                            urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1, count);
+                            urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1);
                             TableOperation insertOp = TableOperation.Insert(urlTableElement);
                             table.Execute(insertOp);
                             if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
@@ -214,7 +230,7 @@ namespace WorkerRole1
                                     }
 
                                     if (templink.StartsWith("http") && (templink.Contains("cnn.com")
-                                        || templink.Contains("bleacherreport.com/nba")))
+                                        || templink.Contains("bleacherreport.com")))
                                     {
                                         if (!urlList.Contains(templink))
                                         {
@@ -274,13 +290,13 @@ namespace WorkerRole1
                     }
                 }
                 htmlqueue.DeleteMessage(xmlLink);
+                check = checkgostop(check);
             }
-            return result;
+            return check;
         }
 
         private CloudQueue getCloudQueue(string name)
         {
-            Queue<string> que = new Queue<string>();
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
             ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
@@ -292,7 +308,6 @@ namespace WorkerRole1
 
         private CloudTable getCloudTable(string name)
         {
-            Queue<string> que = new Queue<string>();
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
             ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();

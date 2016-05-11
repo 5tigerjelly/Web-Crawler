@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using ClassLibrary1;
+using HtmlAgilityPack;
 using Microsoft.Language.Xml;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
@@ -69,6 +70,9 @@ namespace WebRole1
         [WebMethod]
         public string stopCrawl()
         {
+            CloudQueue stopgo = getCloudQueue("stopgo");
+            CloudQueueMessage message = new CloudQueueMessage("stop");
+            stopgo.AddMessage(message);
             return "Hello World";
         }
 
@@ -283,7 +287,7 @@ namespace WebRole1
                             }
 
                             count++;
-                            urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1, count);
+                            urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1);
                             TableOperation insertOp = TableOperation.Insert(urlTableElement);
                             table.Execute(insertOp);
                             if (webpage.DocumentNode.SelectNodes("//a[@href]") != null) {
