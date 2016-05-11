@@ -116,6 +116,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="crawler.js" />
     <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -126,6 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="dashboard.html" />
+    <Content Include="search.css" />
     <Content Include="Web.config" />
     <Content Include="admin.asmx" />
   </ItemGroup>

@@ -3,6 +3,7 @@ using Microsoft.Language.Xml;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
 using RobotsTxt;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Web;
+using System.Web.Script.Services;
 using System.Web.Services;
 using System.Xml.Linq;
 
@@ -33,6 +35,7 @@ namespace WebRole1
         private List<string> disallowList;
 
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string startCrawl(string address)
         {
             if (!address.StartsWith("http"))
@@ -44,8 +47,8 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage(result);
             xmlqueue.AddMessage(message);
-            getXML();
-            getHref();
+            //getXML();
+            //getHref();
 
 
 
@@ -60,7 +63,7 @@ namespace WebRole1
             // ^\/[\w|.|\/|-]+$ for relative links that starts with /
 
 
-            return result;
+            return JsonConvert.SerializeObject(result);
         }
 
         [WebMethod]
@@ -75,10 +78,8 @@ namespace WebRole1
             //table storage
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            CloudQueue totalxml = getCloudQueue("totalxml");
             xmlqueue.Clear();
             htmlqueue.Clear();
-            totalxml.Clear();
             allowList = null;
             disallowList = null;
             return "Done Clearing";
@@ -129,7 +130,6 @@ namespace WebRole1
             }
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            CloudQueue totalxml = getCloudQueue("totalxml");
             //CloudQueueMessage message = new CloudQueueMessage(urladdress);
             //xmlqueue.AddMessage(message);
             int tempcount = 0;
@@ -192,19 +192,10 @@ namespace WebRole1
                             {
                                 CloudQueueMessage message1 = new CloudQueueMessage(locElement);
                                 xmlqueue.AddMessage(message1);
-                                totalxml.AddMessage(message1);
                             }
                             else
                             {
                                 //.html or no .html links but not XML links
-                                if (locElement.Equals("http://www.cnn.com/profiles/thom-patterson-profile"))
-                                {
-                                    tempcount++;
-                                    if (tempcount == 3)
-                                    {
-                                        string what = "the_heck";
-                                    }
-                                }
                                 if (!htmllist.Contains(locElement))
                                 {
                                     htmllist.Add(locElement);
@@ -222,7 +213,6 @@ namespace WebRole1
         private void addRobotstxt(string robotslink)
         {
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueue totalxml = getCloudQueue("totalxml");
             WebClient client = new WebClient();
             Stream stream = client.OpenRead(robotslink);
             StreamReader reader = new StreamReader(stream);
@@ -237,8 +227,6 @@ namespace WebRole1
                     temp = temp.Replace("Sitemap: ", "");
                     CloudQueueMessage message = new CloudQueueMessage(temp);
                     xmlqueue.AddMessage(message);
-                    totalxml.AddMessage(message);
-
                 }
                 else if (temp.StartsWith("Disallow:"))
                 {
@@ -259,12 +247,9 @@ namespace WebRole1
             List<string> result = new List<string>();
             HashSet<string> urlList = new HashSet<string>();
             HashSet<string> tableList = new HashSet<string>();
-            //clearIndex(); //delete this later!!!!!!!!!!!!!!
             CloudTable table = getCloudTable("resulttable");
             CloudTable errortable = getCloudTable("errortable");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            //CloudQueueMessage message = new CloudQueueMessage(urladdress);
-            //htmlqueue.AddMessage(message);
             HtmlWeb hw = new HtmlWeb();
             HtmlDocument webpage;
             Uri currentUri;

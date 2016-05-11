@@ -117,3 +117,6 @@ Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\Microsoft.Azure.KeyVault.Core.dll
 Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\Microsoft.Azure.KeyVault.Core.xml
 Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\Microsoft.WindowsAzure.Storage.pdb
 Z:\Desktop\Web-Crawler\WorkerRole1\obj\Debug\WorkerRole1.csprojResolveAssemblyReference.cache
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\HtmlAgilityPack.dll
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\HtmlAgilityPack.pdb
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\HtmlAgilityPack.xml

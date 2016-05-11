@@ -265,3 +265,5 @@ Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\roslyn\System.IO.FileSy
 Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\roslyn\vbc.exe.config
 Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\roslyn\vbc.rsp
 Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\Microsoft.Language.Xml.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\HtmlAgilityPack.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\HtmlAgilityPack.pdb
