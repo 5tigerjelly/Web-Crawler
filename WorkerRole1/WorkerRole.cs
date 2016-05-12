@@ -26,12 +26,12 @@ namespace WorkerRole1
         private List<string> disallowList;
         public override void Run()
         {
-            bool checkstoporgo = false;
+            /*bool checkstoporgo = false;
             while (true)
             {
                 checkstoporgo = getXML(checkstoporgo);
                 checkstoporgo = getHref(checkstoporgo);
-            }
+            }*/
         }
 
         private bool checkgostop(bool currentstate)

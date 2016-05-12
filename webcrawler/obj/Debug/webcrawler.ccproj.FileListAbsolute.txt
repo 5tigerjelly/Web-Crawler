@@ -267,3 +267,7 @@ Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\roslyn\vbc.rsp
 Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\Microsoft.Language.Xml.dll
 Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\HtmlAgilityPack.dll
 Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\HtmlAgilityPack.pdb
+Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WebRole1\bin\ClassLibrary1.pdb
+Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Debug\WorkerRole1\ClassLibrary1.pdb

@@ -120,3 +120,5 @@ Z:\Desktop\Web-Crawler\WorkerRole1\obj\Debug\WorkerRole1.csprojResolveAssemblyRe
 Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\HtmlAgilityPack.dll
 Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\HtmlAgilityPack.pdb
 Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\HtmlAgilityPack.xml
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Debug\ClassLibrary1.pdb

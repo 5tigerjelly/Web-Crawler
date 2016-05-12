@@ -165,3 +165,5 @@ Z:\Desktop\Web-Crawler\WebRole1\bin\Microsoft.WindowsAzure.Storage.pdb
 Z:\Desktop\Web-Crawler\WebRole1\bin\RobotsTxt.xml
 Z:\Desktop\Web-Crawler\WebRole1\obj\Debug\WebRole1.csprojResolveAssemblyReference.cache
 Z:\Desktop\Web-Crawler\WebRole1\bin\Microsoft.Language.Xml.dll
+Z:\Desktop\Web-Crawler\WebRole1\bin\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\WebRole1\bin\ClassLibrary1.pdb

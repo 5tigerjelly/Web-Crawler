@@ -20,14 +20,12 @@ using System.Xml.Linq;
 
 namespace WebRole1
 {
-    /// <summary>
-    /// Summary description for WebService1
-    /// </summary>
+
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    // [System.Web.Script.Services.ScriptService]
+
+    [System.Web.Script.Services.ScriptService]
     public class WebService1 : System.Web.Services.WebService
     {
         //I think this can be private field outside the method because it 
@@ -36,18 +34,19 @@ namespace WebRole1
         private List<string> disallowList;
 
         [WebMethod]
-        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public string startCrawl(string address)
+        public string addtwolinks()
         {
-            if (!address.StartsWith("http"))
+            /*if (!address.StartsWith("http"))
             {
                 address = "http://" + address;
             }
             Uri rootdomain = new Uri(address);
-            string result = rootdomain.GetLeftPart(UriPartial.Authority) + "/robots.txt";
+            string result = rootdomain.GetLeftPart(UriPartial.Authority) + "/robots.txt";*/
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueueMessage message = new CloudQueueMessage(result);
+            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
             xmlqueue.AddMessage(message);
+            xmlqueue.AddMessage(message1);
             //getXML();
             //getHref();
 
@@ -64,7 +63,28 @@ namespace WebRole1
             // ^\/[\w|.|\/|-]+$ for relative links that starts with /
 
 
-            return JsonConvert.SerializeObject(result);
+            return "DONE";
+        }
+
+        [WebMethod]
+        public void run()
+        {
+            bool checkstoporgo = true;
+            while (true)
+            {
+                checkstoporgo = checkgostop(checkstoporgo);
+                checkstoporgo = getXML(checkstoporgo);
+                checkstoporgo = getHref(checkstoporgo);
+            }
+        }
+
+        [WebMethod]
+        public string restart()
+        {
+            CloudQueue stopgo = getCloudQueue("stopgo");
+            CloudQueueMessage message = new CloudQueueMessage("go");
+            stopgo.AddMessage(message);
+            return "Hello World";
         }
 
         [WebMethod]
@@ -123,22 +143,14 @@ namespace WebRole1
         }
 
         [WebMethod]
-        public string getXML()
+        public bool getXML(bool check)
         {
-            //clearIndex(); //delete this later!!!!!!!!!!!!!!
             HashSet<string> htmllist = new HashSet<string>();
-            if (allowList == null || disallowList == null)
-            {
-                allowList = new List<string>();
-                disallowList = new List<string>();
-            }
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
-            //CloudQueueMessage message = new CloudQueueMessage(urladdress);
-            //xmlqueue.AddMessage(message);
-            int tempcount = 0;
-            while (true)
+            while (check)
             {
+                Thread.Sleep(100);
                 CloudQueueMessage xmlLink = xmlqueue.GetMessage();
                 if (xmlLink == null) { break; }
                 else if (xmlLink.AsString.EndsWith("robots.txt"))
@@ -210,43 +222,33 @@ namespace WebRole1
                         }
                     }
                 }
+                check = checkgostop(check);
             }
-            return "done";
+            return check;
         }
 
-        private void addRobotstxt(string robotslink)
+        private bool checkgostop(bool currentstate)
         {
-            CloudQueue xmlqueue = getCloudQueue("xmlque");
-            WebClient client = new WebClient();
-            Stream stream = client.OpenRead(robotslink);
-            StreamReader reader = new StreamReader(stream);
-            //string domain = robotslink.Replace("/robots.txt", "");
-            Uri domain = new Uri(robotslink);
-            while (!reader.EndOfStream)
+            CloudQueue stopgo = getCloudQueue("stopgo");
+            CloudQueueMessage stoporgo = stopgo.GetMessage();
+            if (stoporgo == null)
             {
-                string temp = reader.ReadLine();
-                if (temp.StartsWith("Sitemap:"))
-                {
-                    //sitemap .xml files
-                    temp = temp.Replace("Sitemap: ", "");
-                    CloudQueueMessage message = new CloudQueueMessage(temp);
-                    xmlqueue.AddMessage(message);
-                }
-                else if (temp.StartsWith("Disallow:"))
-                {
-                    temp = temp.Replace("Disallow: ", "");
-                    disallowList.Add(domain.Host + temp);
-                }
-                else if (temp.StartsWith("Allow:"))
-                {
-                    temp = temp.Replace("Allow: ", "");
-                    allowList.Add(domain.Host + temp);
-                }
+                return currentstate;
+            }
+            else if (stoporgo.AsString.Equals("go"))
+            {
+                stopgo.DeleteMessage(stoporgo);
+                return true;
+            }
+            else
+            {
+                stopgo.DeleteMessage(stoporgo);
+                return false;
             }
         }
 
         [WebMethod]
-        public List<string> getHref()
+        public bool getHref(bool check)
         {
             List<string> result = new List<string>();
             HashSet<string> urlList = new HashSet<string>();
@@ -258,17 +260,15 @@ namespace WebRole1
             HtmlDocument webpage;
             Uri currentUri;
             pagetitle urlTableElement;
-            int count = 0;
-            while (true)
+            while (check)
             {
-                
+                Thread.Sleep(100);
                 CloudQueueMessage xmlLink = htmlqueue.GetMessage();
                 if (xmlLink == null) { break; }
                 else if (!tableList.Contains(xmlLink.AsString))
                 {
                     tableList.Add(xmlLink.AsString);
                     webpage = hw.Load(xmlLink.AsString);
-                    Thread.Sleep(100);
                     if (hw.StatusCode == HttpStatusCode.OK)
                     {
                         DateTime pubdate1;
@@ -286,11 +286,11 @@ namespace WebRole1
                                 pubdate1 = DateTime.Today;
                             }
 
-                            count++;
                             urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1);
                             TableOperation insertOp = TableOperation.Insert(urlTableElement);
                             table.Execute(insertOp);
-                            if (webpage.DocumentNode.SelectNodes("//a[@href]") != null) {
+                            if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
+                            {
                                 foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                 {
                                     string templink = link.Attributes["href"].Value;
@@ -305,7 +305,7 @@ namespace WebRole1
                                     }
 
                                     if (templink.StartsWith("http") && (templink.Contains("cnn.com")
-                                        || templink.Contains("bleacherreport.com/nba")))
+                                        || templink.Contains("bleacherreport.com")))
                                     {
                                         if (!urlList.Contains(templink))
                                         {
@@ -353,8 +353,8 @@ namespace WebRole1
 
                             }
                         }*/
-                        
-                        
+
+
                     }
                     else
                     {
@@ -365,8 +365,48 @@ namespace WebRole1
                     }
                 }
                 htmlqueue.DeleteMessage(xmlLink);
+                check = checkgostop(check);
             }
-            return result;
+            return check;
+        }
+
+        private void addRobotstxt(string robotslink)
+        {
+            if (allowList == null || disallowList == null)
+            {
+                allowList = new List<string>();
+                disallowList = new List<string>();
+            }
+            CloudQueue xmlqueue = getCloudQueue("xmlque");
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead(robotslink);
+            StreamReader reader = new StreamReader(stream);
+            //string domain = robotslink.Replace("/robots.txt", "");
+            Uri domain = new Uri(robotslink);
+            while (!reader.EndOfStream)
+            {
+                string temp = reader.ReadLine();
+                if (temp.StartsWith("Sitemap:"))
+                {
+                    //sitemap .xml files
+                    temp = temp.Replace("Sitemap: ", "");
+                    if (temp.Contains("cnn.com") || temp.Contains("/nba"))
+                    {
+                        CloudQueueMessage message = new CloudQueueMessage(temp);
+                        xmlqueue.AddMessage(message);
+                    }
+                }
+                else if (temp.StartsWith("Disallow:"))
+                {
+                    temp = temp.Replace("Disallow: ", "");
+                    disallowList.Add(domain.Host + temp);
+                }
+                else if (temp.StartsWith("Allow:"))
+                {
+                    temp = temp.Replace("Allow: ", "");
+                    allowList.Add(domain.Host + temp);
+                }
+            }
         }
 
         [WebMethod]
