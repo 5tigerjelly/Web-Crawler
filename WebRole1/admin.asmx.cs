@@ -337,6 +337,7 @@ namespace WebRole1
                                             else
                                             {
                                                 lasttenadded.RemoveAt(0);
+                                                lasttenadded.Add(templink);
                                             }
                                                 urlList.Add(templink);
                                                 result.Add(templink);
