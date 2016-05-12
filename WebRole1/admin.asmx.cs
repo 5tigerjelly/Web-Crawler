@@ -255,9 +255,11 @@ namespace WebRole1
             List<string> result = new List<string>();
             HashSet<string> urlList = new HashSet<string>();
             HashSet<string> tableList = new HashSet<string>();
-            CloudTable table = getCloudTable("resulttable");
+            CloudTable table = getCloudTable("resulttable1");
+            CloudTable recentten = getCloudTable("lastten");
             CloudTable errortable = getCloudTable("errortable");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
+            List<string> lasttenadded = new List<string>();
             HtmlWeb hw = new HtmlWeb();
             HtmlDocument webpage;
             Uri currentUri;
@@ -312,7 +314,7 @@ namespace WebRole1
                                         if (!urlList.Contains(templink))
                                         {
                                             bool checkdisallow = true;
-                                            foreach (string disallowlink in disallowList)
+                                            /*foreach (string disallowlink in disallowList)
                                             {
                                                 if (templink.Contains(disallowlink))
                                                 {
@@ -327,12 +329,20 @@ namespace WebRole1
                                                 }
                                             }
                                             if (checkdisallow)
+                                            {*/
+                                            if (lasttenadded.Count < 10)
                                             {
+                                                lasttenadded.Add(templink);
+                                            }
+                                            else
+                                            {
+                                                lasttenadded.RemoveAt(0);
+                                            }
                                                 urlList.Add(templink);
                                                 result.Add(templink);
                                                 CloudQueueMessage message1 = new CloudQueueMessage(templink);
                                                 htmlqueue.AddMessage(message1);
-                                            }
+                                           // }
                                         }
                                     }
                                 }
