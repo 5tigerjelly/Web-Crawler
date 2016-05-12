@@ -12,6 +12,8 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Web;
 using System.Web.Script.Services;
@@ -422,6 +424,8 @@ namespace WebRole1
             }
             return result;
         }
+
+        
 
         /*[WebMethod]
         public string getpageTitle()
