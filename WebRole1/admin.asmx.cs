@@ -262,15 +262,14 @@ namespace WebRole1
                 CloudTable errortable = getCloudTable("errortable");
                 CloudQueue htmlqueue = getCloudQueue("htmlque");
                 List<string> result = new List<string>();
-                Uri cnn = new Uri("http://www.cnn.com/");
+                Uri cnn = new Uri("http://cnn.com/");
                 Uri bleach = new Uri("http://bleacherreport.com/");
                 HashSet<string> urlList = new HashSet<string>();
                 HashSet<string> tableList = new HashSet<string>();
                 
                 List<string> lasttenadded = new List<string>();
                 HtmlWeb hw = new HtmlWeb();
-                HtmlDocument webpage;
-                Uri currentUri;
+                //HtmlDocument webpage;
                 pagetitle urlTableElement;
                 while (check)
                 {
@@ -279,8 +278,9 @@ namespace WebRole1
                     if (xmlLink == null) { break; }
                     else if (!tableList.Contains(xmlLink.AsString))
                     {
-                        tableList.Add(xmlLink.AsString);
-                        webpage = hw.Load(xmlLink.AsString);
+                        string url = xmlLink.AsString;
+                        tableList.Add(url);
+                        HtmlDocument webpage = hw.Load(url);
                         if (hw.StatusCode == HttpStatusCode.OK)
                         {
                             DateTime pubdate1;
@@ -298,27 +298,25 @@ namespace WebRole1
                                     pubdate1 = DateTime.Today;
                                 }
 
-                                urlTableElement = new pagetitle(temptitle, xmlLink.AsString, pubdate1);
+                                urlTableElement = new pagetitle(temptitle, url, pubdate1);
                                 TableOperation insertOp = TableOperation.Insert(urlTableElement);
                                 table.Execute(insertOp);
-                                lasttenadded = updateUrl(lasttenadded, xmlLink.AsString, recentten);
+                                lasttenadded = updateUrl(lasttenadded, url, recentten);
                                 if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
                                 {
                                     foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                     {
                                         string templink = link.Attributes["href"].Value;
-                                        currentUri = new Uri(xmlLink.AsString);
                                         if (templink.StartsWith("//"))
                                         {
                                             templink = "http:" + templink;
                                         }
                                         else if (templink.StartsWith("/"))
                                         {
-                                            
-                                            templink = "http://" + currentUri.Host + templink;
+                                            templink = "http://" + new Uri(url).Host + templink;
                                         }
-
-                                        if (cnn.IsBaseOf(currentUri) || bleach.IsBaseOf(currentUri))
+                                        Uri currentUri2 = new Uri(templink);
+                                        if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
                                         {
                                             if (!urlList.Contains(templink))
                                             {
@@ -491,8 +489,7 @@ namespace WebRole1
         public string searchURL(string search)
         {
             CloudTable table = getCloudTable("resulttable");
-            md5coding thing = new md5coding();
-            string encoded = thing.CalculateMD5Hash(search);
+            string encoded = new md5coding(search).encoded;
             TableOperation retrieveOperation = TableOperation.Retrieve<pagetitle>("title", encoded);
             TableResult retrievedResult = table.Execute(retrieveOperation);
             if (retrievedResult.Result != null)

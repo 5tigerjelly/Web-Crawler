@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="md5coding.cs" />
     <Compile Include="pagetitle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="resenturl.cs" />

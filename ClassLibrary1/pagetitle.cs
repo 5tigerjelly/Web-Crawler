@@ -29,17 +29,17 @@ namespace ClassLibrary1
             this.Timestamp = DateTime.Now;
         }
 
-        private string CalculateMD5Hash(string input)
+        private string CalculateMD5Hash(string address)
         {
             MD5 md5 = MD5.Create();
-            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] inputBytes = Encoding.ASCII.GetBytes(address);
             byte[] hash = md5.ComputeHash(inputBytes);
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < hash.Length; i++)
             {
                 sb.Append(hash[i].ToString("X2"));
             }
-            return sb.ToString();
+           return sb.ToString();
         }
 
         public string urlLink { get; set; }
