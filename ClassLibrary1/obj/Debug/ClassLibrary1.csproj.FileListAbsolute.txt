@@ -53,6 +53,5 @@ Z:\Desktop\Web-Crawler\ClassLibrary1\bin\Debug\ko\System.Spatial.resources.dll
 Z:\Desktop\Web-Crawler\ClassLibrary1\bin\Debug\ru\System.Spatial.resources.dll
 Z:\Desktop\Web-Crawler\ClassLibrary1\bin\Debug\zh-Hans\System.Spatial.resources.dll
 Z:\Desktop\Web-Crawler\ClassLibrary1\bin\Debug\zh-Hant\System.Spatial.resources.dll
-Z:\Desktop\Web-Crawler\ClassLibrary1\obj\Debug\ClassLibrary1.csprojResolveAssemblyReference.cache
 Z:\Desktop\Web-Crawler\ClassLibrary1\obj\Debug\ClassLibrary1.dll
 Z:\Desktop\Web-Crawler\ClassLibrary1\obj\Debug\ClassLibrary1.pdb

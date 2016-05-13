@@ -15,7 +15,8 @@ namespace ClassLibrary1
         {
             this.PartitionKey = "error";
             this.RowKey = CalculateMD5Hash(address);
-            this.pubdate = DateTime.Today;
+            this.urlLink = address; //delete later
+            this.Timestamp = DateTime.Now;
         }
 
         public pagetitle(string title, string address, DateTime date)
@@ -24,15 +25,15 @@ namespace ClassLibrary1
             this.RowKey = CalculateMD5Hash(address);
             this.title = title;
             this.pubdate = date;
+            this.urlLink = address; //delete later
+            this.Timestamp = DateTime.Now;
         }
 
         private string CalculateMD5Hash(string input)
         {
-            // step 1, calculate MD5 hash from input
             MD5 md5 = MD5.Create();
             byte[] inputBytes = Encoding.ASCII.GetBytes(input);
             byte[] hash = md5.ComputeHash(inputBytes);
-            // step 2, convert byte array to hex string
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < hash.Length; i++)
             {
