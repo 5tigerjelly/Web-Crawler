@@ -314,7 +314,7 @@ namespace WebRole1
                                         if (!urlList.Contains(templink))
                                         {
                                             bool checkdisallow = true;
-                                            /*foreach (string disallowlink in disallowList)
+                                            foreach (string disallowlink in disallowList)
                                             {
                                                 if (templink.Contains(disallowlink))
                                                 {
@@ -329,21 +329,22 @@ namespace WebRole1
                                                 }
                                             }
                                             if (checkdisallow)
-                                            {*/
-                                            if (lasttenadded.Count < 10)
                                             {
-                                                lasttenadded.Add(templink);
-                                            }
-                                            else
-                                            {
-                                                lasttenadded.RemoveAt(0);
-                                                lasttenadded.Add(templink);
-                                            }
+                                                if (lasttenadded.Count < 10)
+                                                {
+                                                    lasttenadded.Add(templink);
+                                                }
+                                                else
+                                                {
+                                                    lasttenadded.RemoveAt(0);
+                                                    lasttenadded.Add(templink);
+                                                }
                                                 urlList.Add(templink);
                                                 result.Add(templink);
                                                 CloudQueueMessage message1 = new CloudQueueMessage(templink);
                                                 htmlqueue.AddMessage(message1);
-                                           // }
+                                                //TableOperation retrieveOperation = TableOperation.Retrieve FIX HERE
+                                            }
                                         }
                                     }
                                 }
@@ -436,7 +437,7 @@ namespace WebRole1
             return result;
         }
 
-        
+
 
         /*[WebMethod]
         public string getpageTitle()
@@ -447,6 +448,28 @@ namespace WebRole1
 
         var query = from title in table
             return "done";
+
+        TableOperation retrieveOperation = TableOperation.Retrieve<lasturl>("tenurl");
+
+        // Execute the operation.
+        TableResult retrievedResult = table.Execute(retrieveOperation);
+
+        // Assign the result to a CustomerEntity object.
+        CustomerEntity updateEntity = (CustomerEntity)retrievedResult.Result;
+
+        if (updateEntity != null)
+        {
+           // Change the phone number.
+           updateEntity.PhoneNumber = "425-555-0105";
+
+           // Create the Replace TableOperation.
+           TableOperation updateOperation = TableOperation.Replace(updateEntity);
+
+           // Execute the operation.
+           table.Execute(updateOperation);
+
+           Console.WriteLine("Entity updated.");
+        }
         }*/
     }
 }
