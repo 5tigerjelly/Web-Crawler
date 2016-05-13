@@ -64,11 +64,7 @@ namespace WebRole1
         [WebMethod]
         public void run()
         {
-            bool checkstoporgo = true;
-            CloudTable table = getCloudTable("resulttable");
-            CloudTable recentten = getCloudTable("lastten");
-            CloudTable errortable = getCloudTable("errortable");
-            
+            bool checkstoporgo = true;         
             while (true)
             {
                 checkstoporgo = checkgostop(checkstoporgo);
@@ -162,71 +158,75 @@ namespace WebRole1
                     }
                     else
                     {
-                        //xml
-                        XElement sitemap = XElement.Load(xmlLink.AsString);
-                        xmlqueue.DeleteMessage(xmlLink);
-
-                        XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                        XName urlX = XName.Get("url", "http://www.google.com/schemas/sitemap/0.9");
-                        XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                        XName locX = XName.Get("loc", "http://www.google.com/schemas/sitemap/0.9");
-                        XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                        XName time = XName.Get("lastmod", "http://www.sitemaps.org/schemas/sitemap/0.9");
-                        XName news = XName.Get("news", "http://www.google.com/schemas/sitemap-news/0.9");
-                        XName newspubdate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-news/0.9");
-                        XName video = XName.Get("video", "http://www.google.com/schemas/sitemap-video/1.1");
-                        XName videopuddate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-video/1.1");
-                        XName temp = url;
-                        DateTime fixedDate = new DateTime(2016, 3, 1);
-
-                        //check if the url isnt used, then change to sitemap
-                        if (sitemap.Elements(urlX).Count() != 0) { temp = urlX; }
-                        else if (sitemap.Elements(sitemaps).Count() != 0) { temp = sitemaps; }
-                        DateTime pubdate;
-                        foreach (var urlElement in sitemap.Elements(temp))
+                        try
                         {
-                            if (urlElement.Element(loc) == null) { loc = locX; }
-                            string locElement = urlElement.Element(loc).Value;
-                            if (urlElement.Element(time) != null)
-                            {
-                                pubdate = DateTime.Parse(urlElement.Element(time).Value);
-                            }
-                            else if (urlElement.Element(news) != null)
-                            {
-                                pubdate = DateTime.Parse(urlElement.Element(news).Element(newspubdate).Value);
-                            }
-                            else if (urlElement.Element(video) != null)
-                            {
-                                pubdate = DateTime.Parse(urlElement.Element(video).Element(videopuddate).Value);
-                            }
-                            else
-                            {
-                                //no date found, just add
-                                pubdate = DateTime.Today;
-                            }
+                            //xml
+                            XElement sitemap = XElement.Load(xmlLink.AsString);
+                            xmlqueue.DeleteMessage(xmlLink);
 
-                            //check if younger than 2 months
-                            if (fixedDate < pubdate)
+                            XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                            XName urlX = XName.Get("url", "http://www.google.com/schemas/sitemap/0.9");
+                            XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                            XName locX = XName.Get("loc", "http://www.google.com/schemas/sitemap/0.9");
+                            XName sitemaps = XName.Get("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                            XName time = XName.Get("lastmod", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                            XName news = XName.Get("news", "http://www.google.com/schemas/sitemap-news/0.9");
+                            XName newspubdate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-news/0.9");
+                            XName video = XName.Get("video", "http://www.google.com/schemas/sitemap-video/1.1");
+                            XName videopuddate = XName.Get("publication_date", "http://www.google.com/schemas/sitemap-video/1.1");
+                            XName temp = url;
+                            DateTime fixedDate = new DateTime(2016, 3, 1);
+
+                            //check if the url isnt used, then change to sitemap
+                            if (sitemap.Elements(urlX).Count() != 0) { temp = urlX; }
+                            else if (sitemap.Elements(sitemaps).Count() != 0) { temp = sitemaps; }
+                            DateTime pubdate;
+                            foreach (var urlElement in sitemap.Elements(temp))
                             {
-                                if (locElement.EndsWith(".xml"))
+                                if (urlElement.Element(loc) == null) { loc = locX; }
+                                string locElement = urlElement.Element(loc).Value;
+                                if (urlElement.Element(time) != null)
                                 {
-                                    CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                                    xmlqueue.AddMessage(message1);
+                                    pubdate = DateTime.Parse(urlElement.Element(time).Value);
+                                }
+                                else if (urlElement.Element(news) != null)
+                                {
+                                    pubdate = DateTime.Parse(urlElement.Element(news).Element(newspubdate).Value);
+                                }
+                                else if (urlElement.Element(video) != null)
+                                {
+                                    pubdate = DateTime.Parse(urlElement.Element(video).Element(videopuddate).Value);
                                 }
                                 else
                                 {
-                                    //.html or no .html links but not XML links
-                                    if (!htmllist.Contains(locElement))
+                                    //no date found, just add
+                                    pubdate = DateTime.Today;
+                                }
+
+                                //check if younger than 2 months
+                                if (fixedDate < pubdate)
+                                {
+                                    if (locElement.EndsWith(".xml"))
                                     {
-                                        htmllist.Add(locElement);
                                         CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                                        htmlqueue.AddMessage(message1);
+                                        xmlqueue.AddMessage(message1);
+                                    }
+                                    else
+                                    {
+                                        //.html or no .html links but not XML links
+                                        if (!htmllist.Contains(locElement))
+                                        {
+                                            htmllist.Add(locElement);
+                                            CloudQueueMessage message1 = new CloudQueueMessage(locElement);
+                                            htmlqueue.AddMessage(message1);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                        catch { }
                     check = checkgostop(check);
+                    }
                 }
             }
             return check;
@@ -262,6 +262,8 @@ namespace WebRole1
                 CloudTable errortable = getCloudTable("errortable");
                 CloudQueue htmlqueue = getCloudQueue("htmlque");
                 List<string> result = new List<string>();
+                Uri cnn = new Uri("http://www.cnn.com/");
+                Uri bleach = new Uri("http://bleacherreport.com/");
                 HashSet<string> urlList = new HashSet<string>();
                 HashSet<string> tableList = new HashSet<string>();
                 
@@ -305,18 +307,18 @@ namespace WebRole1
                                     foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                     {
                                         string templink = link.Attributes["href"].Value;
+                                        currentUri = new Uri(xmlLink.AsString);
                                         if (templink.StartsWith("//"))
                                         {
                                             templink = "http:" + templink;
                                         }
                                         else if (templink.StartsWith("/"))
                                         {
-                                            currentUri = new Uri(xmlLink.AsString);
+                                            
                                             templink = "http://" + currentUri.Host + templink;
                                         }
 
-                                        if (templink.StartsWith("http") && (templink.Contains("cnn.com")
-                                            || templink.Contains("bleacherreport.com")))
+                                        if (cnn.IsBaseOf(currentUri) || bleach.IsBaseOf(currentUri))
                                         {
                                             if (!urlList.Contains(templink))
                                             {
@@ -472,37 +474,53 @@ namespace WebRole1
 
 
 
-        /*[WebMethod]
-        public string getpageTitle()
+        [WebMethod]
+        public List<string> getpageTitle()
+        {
+            CloudTable recentten = getCloudTable("lastten");
+            TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
+            TableResult retrievedResult = recentten.Execute(retrieveOperation);
+            if (retrievedResult.Result != null)
+            {
+                return ((resenturl)retrievedResult.Result).lastitems.Split(',').ToList();
+            }
+            return  new List<string>();
+        }
+
+        [WebMethod]
+        public string searchURL(string search)
         {
             CloudTable table = getCloudTable("resulttable");
-            TableQuery<pagetitle> rangequery = new TableQuery<pagetitle>()
-                .OrderByDescending();
-
-        var query = from title in table
-            return "done";
-
-        TableOperation retrieveOperation = TableOperation.Retrieve<lasturl>("tenurl");
-
-        // Execute the operation.
-        TableResult retrievedResult = table.Execute(retrieveOperation);
-
-        // Assign the result to a CustomerEntity object.
-        CustomerEntity updateEntity = (CustomerEntity)retrievedResult.Result;
-
-        if (updateEntity != null)
-        {
-           // Change the phone number.
-           updateEntity.PhoneNumber = "425-555-0105";
-
-           // Create the Replace TableOperation.
-           TableOperation updateOperation = TableOperation.Replace(updateEntity);
-
-           // Execute the operation.
-           table.Execute(updateOperation);
-
-           Console.WriteLine("Entity updated.");
+            md5coding thing = new md5coding();
+            string encoded = thing.CalculateMD5Hash(search);
+            TableOperation retrieveOperation = TableOperation.Retrieve<pagetitle>("title", encoded);
+            TableResult retrievedResult = table.Execute(retrieveOperation);
+            if (retrievedResult.Result != null)
+            {
+                return ((pagetitle)retrievedResult.Result).title;
+            }
+            else
+            {
+                return search + " was not found.";
+            }
+            
         }
+
+        /*        
+        public string HelloWorld()
+        {
+            string thing = "/pointrollfdsa/";
+            WebClient client = new WebClient();
+            string thing2 = client.DownloadString("http://cnn.com/robots.txt");
+            Robots robot = Robots.Load(thing2);
+            if (robot.IsPathAllowed("*", thing))
+            {
+                return "yes";
+            }
+            else
+            {
+                return "no";
+            }
         }*/
     }
 }
