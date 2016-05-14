@@ -32,7 +32,7 @@ namespace WebRole1
         public string addtwolinks()
         {
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
             xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
@@ -216,8 +216,8 @@ namespace WebRole1
                             }
                         }
                         catch { }
-                    check = checkgostop(check);
                     }
+                    check = checkgostop(check);
                 }
             }
             return check;
