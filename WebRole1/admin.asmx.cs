@@ -31,33 +31,17 @@ namespace WebRole1
         [WebMethod]
         public string addtwolinks()
         {
-            /*if (!address.StartsWith("http"))
-            {
-                address = "http://" + address;
-            }
-            Uri rootdomain = new Uri(address);
-            string result = rootdomain.GetLeftPart(UriPartial.Authority) + "/robots.txt";*/
             CloudQueue xmlqueue = getCloudQueue("xmlque");
-            //CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
+            CloudQueueMessage message = new CloudQueueMessage("http://www.cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            //xmlqueue.AddMessage(message);
+            xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
-            //getXML();
-            //getHref();
-
-
-
-            //resultlist.Add(content);
-            //var root = Parser.ParseText("http://www.cnn.com/sitemaps/sitemap-interactive.xml");
-            //root.Name;
             //regex
             // ^\/\/.*\..*$ for links without http in the front but has //
             // ^(http)s?(:\/\/).*$ for links that start with http://
             // ^.*cnn\.com.*$ for links that has cnn.com (within http or https)
             // ^.*bleacherreport\.com\/nba.*$ for links that are bleacherreport.com/nba (within http or https)
             // ^\/[\w|.|\/|-]+$ for relative links that starts with /
-
-
             return "DONE";
         }
 
@@ -97,10 +81,17 @@ namespace WebRole1
             //table storage
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
+            CloudTable table = getCloudTable("resulttable");
+            CloudTable recentten = getCloudTable("lastten");
+            CloudTable errortable = getCloudTable("errortable");
+            table.Delete();
+            recentten.Delete();
+            errortable.Delete();
             xmlqueue.Clear();
             htmlqueue.Clear();
             allowList = null;
             disallowList = null;
+            Thread.Sleep(40000);
             return "Done Clearing";
         }
 
@@ -315,33 +306,35 @@ namespace WebRole1
                                         {
                                             templink = "http://" + new Uri(url).Host + templink;
                                         }
-                                        Uri currentUri2 = new Uri(templink);
-                                        if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
-                                        {
-                                            if (!urlList.Contains(templink))
+                                        if (templink.StartsWith("http")) {
+                                            Uri currentUri2 = new Uri(templink);
+                                            if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
                                             {
-                                                bool checkdisallow = true;
-                                                foreach (string disallowlink in disallowList)
+                                                if (!urlList.Contains(templink))
                                                 {
-                                                    if (templink.Contains(disallowlink))
+                                                    bool checkdisallow = true;
+                                                    foreach (string disallowlink in disallowList)
                                                     {
-                                                        checkdisallow = false;
-                                                        foreach (string allowlink in allowList)
+                                                        if (templink.Contains(disallowlink))
                                                         {
-                                                            if (templink.Contains(allowlink))
+                                                            checkdisallow = false;
+                                                            foreach (string allowlink in allowList)
                                                             {
-                                                                checkdisallow = true;
+                                                                if (templink.Contains(allowlink))
+                                                                {
+                                                                    checkdisallow = true;
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                }
-                                                if (checkdisallow)
-                                                {
+                                                    if (checkdisallow)
+                                                    {
 
-                                                    urlList.Add(templink);
-                                                    result.Add(templink);
-                                                    CloudQueueMessage message1 = new CloudQueueMessage(templink);
-                                                    htmlqueue.AddMessage(message1);
+                                                        urlList.Add(templink);
+                                                        result.Add(templink);
+                                                        CloudQueueMessage message1 = new CloudQueueMessage(templink);
+                                                        htmlqueue.AddMessage(message1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -405,6 +398,7 @@ namespace WebRole1
             if (updateURL != null)
             {
                 updateURL.lastitems = string.Join(",", lasttenadded.ToArray());
+                updateURL.count = updateURL.count + 1;
                 TableOperation insertOrReplaceOperation = TableOperation.InsertOrReplace(updateURL);
                 recentten.Execute(insertOrReplaceOperation);
             }
@@ -519,5 +513,25 @@ namespace WebRole1
                 return "no";
             }
         }*/
+
+        [WebMethod]
+        public int XmlQueueCount()
+        {
+            return queueCounter("xmlque");
+        }
+
+        [WebMethod]
+        public int HTMLQueueCount()
+        {
+            return queueCounter("htmlque");
+        }
+
+        private int queueCounter(string quename)
+        {
+            CloudQueue q = getCloudQueue(quename);
+            q.FetchAttributes();
+            int? queueCount = q.ApproximateMessageCount;
+            return (int)queueCount;
+        }
     }
 }

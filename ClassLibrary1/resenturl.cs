@@ -15,6 +15,7 @@ namespace ClassLibrary1
             PartitionKey = "lastten";
             RowKey = "rowkey";
             lastitems = "";
+            count = 1;
         }
 
         public resenturl(string link)
@@ -22,8 +23,10 @@ namespace ClassLibrary1
             PartitionKey = "lastten";
             RowKey = "rowkey";
             lastitems = link;
+            count = 1;
         }
 
         public string lastitems { get; set; }
+        public int count { get; set; }
     }
 }
