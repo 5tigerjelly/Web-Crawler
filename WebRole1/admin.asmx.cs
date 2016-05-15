@@ -34,8 +34,9 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            //xmlqueue.AddMessage(message);
+            xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
+            restart();
             //regex
             // ^\/\/.*\..*$ for links without http in the front but has //
             // ^(http)s?(:\/\/).*$ for links that start with http://
