@@ -24,8 +24,25 @@ namespace WorkerRole1
 
         private List<string> allowList;
         private List<string> disallowList;
+        private CloudTable table;
+        private CloudTable recentten;
+        private CloudTable errortable;
+        private CloudQueue htmlqueue;
+        private CloudQueue xmlqueue;
+        private CloudQueue stopgo;
+        private CloudStorageAccount storageAccount;
+
         public override void Run()
         {
+            storageAccount = CloudStorageAccount.Parse(
+                ConfigurationManager.AppSettings["StorageConnectionString"]);
+            table = getCloudTable("resulttable");
+            recentten = getCloudTable("lastten");
+            errortable = getCloudTable("errortable1");
+            htmlqueue = getCloudQueue("htmlque");
+            xmlqueue = getCloudQueue("xmlque");
+            stopgo = getCloudQueue("stopgo");
+            
             bool checkstoporgo = false;
             while (true)
             {
@@ -37,9 +54,6 @@ namespace WorkerRole1
 
         private CloudQueue getCloudQueue(string name)
         {
-            Queue<string> que = new Queue<string>();
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-            ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             CloudQueue queue = queueClient.GetQueueReference(name);
             queue.CreateIfNotExists();
@@ -49,9 +63,6 @@ namespace WorkerRole1
 
         private CloudTable getCloudTable(string name)
         {
-            Queue<string> que = new Queue<string>();
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-            ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference(name);
             table.CreateIfNotExists();
@@ -63,14 +74,12 @@ namespace WorkerRole1
         {
             if (check)
             {
-                CloudQueue htmlqueue = getCloudQueue("htmlque");
-                CloudQueue xmlqueue = getCloudQueue("xmlque");
                 HashSet<string> htmllist = new HashSet<string>();
-
                 while (check)
                 {
                     Thread.Sleep(100);
                     CloudQueueMessage xmlLink = xmlqueue.GetMessage();
+
                     if (xmlLink == null) { break; }
                     else if (xmlLink.AsString.EndsWith("robots.txt"))
                     {
@@ -155,7 +164,7 @@ namespace WorkerRole1
 
         private bool checkgostop(bool currentstate)
         {
-            CloudQueue stopgo = getCloudQueue("stopgo");
+            
             CloudQueueMessage stoporgo = stopgo.GetMessage();
             if (stoporgo == null)
             {
@@ -177,10 +186,6 @@ namespace WorkerRole1
         {
             if (check)
             {
-                CloudTable table = getCloudTable("resulttable");
-                CloudTable recentten = getCloudTable("lastten");
-                CloudTable errortable = getCloudTable("errortable1");
-                CloudQueue htmlqueue = getCloudQueue("htmlque");
                 List<string> result = new List<string>();
                 Uri cnn = new Uri("http://cnn.com/");
                 Uri bleach = new Uri("http://bleacherreport.com/");
@@ -223,7 +228,15 @@ namespace WorkerRole1
                                         pubdate1 = DateTime.Today;
                                     }
 
-                                    urlTableElement = new pagetitle(temptitle, url, pubdate1);
+                                    Uri tempuri = new Uri(url);
+                                    string stripwww = tempuri.Host + tempuri.PathAndQuery;
+                                    if (stripwww.StartsWith("www"))
+                                    {
+                                        stripwww = stripwww.Replace("www.", "");
+                                    }
+                                    stripwww = "http://" + stripwww;
+
+                                    urlTableElement = new pagetitle(temptitle, stripwww, pubdate1);
                                     TableOperation insertOp = TableOperation.Insert(urlTableElement);
                                     table.Execute(insertOp);
                                     lasttenadded = updateUrl(lasttenadded, url, recentten);
@@ -238,7 +251,7 @@ namespace WorkerRole1
                                             }
                                             else if (templink.StartsWith("/"))
                                             {
-                                                templink = "http://" + new Uri(url).Host + templink;
+                                                templink = "http://" + tempuri.Host + templink;
                                             }
                                             if (templink.StartsWith("http"))
                                             {
@@ -354,7 +367,6 @@ namespace WorkerRole1
                 allowList = new List<string>();
                 disallowList = new List<string>();
             }
-            CloudQueue xmlqueue = getCloudQueue("xmlque");
             WebClient client = new WebClient();
             Stream stream = client.OpenRead(robotslink);
             StreamReader reader = new StreamReader(stream);

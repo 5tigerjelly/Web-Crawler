@@ -9,14 +9,14 @@
     <AzureEnableRemoteDesktop>True</AzureEnableRemoteDesktop>
     <AzureEnableWebDeploy>False</AzureEnableWebDeploy>
     <AzureFallbackToDeleteAndRecreateIfUpgradeFails>False</AzureFallbackToDeleteAndRecreateIfUpgradeFails>
-    <AzureHostedServiceLabel>bmo5</AzureHostedServiceLabel>
-    <AzureHostedServiceName>bmo5</AzureHostedServiceName>
+    <AzureHostedServiceLabel>bmo52</AzureHostedServiceLabel>
+    <AzureHostedServiceName>bmo52</AzureHostedServiceName>
     <AzureEnableIntelliTrace>False</AzureEnableIntelliTrace>
     <AzureEnableProfiling>False</AzureEnableProfiling>
     <AzureServiceConfiguration>Cloud</AzureServiceConfiguration>
     <AzureSolutionConfiguration>Release</AzureSolutionConfiguration>
-    <AzureStorageAccountLabel>bmowiki</AzureStorageAccountLabel>
-    <AzureStorageAccountName>bmowiki</AzureStorageAccountName>
+    <AzureStorageAccountLabel>bmo53</AzureStorageAccountLabel>
+    <AzureStorageAccountName>bmo53</AzureStorageAccountName>
     <AzureAppendTimestampToDeploymentLabel>True</AzureAppendTimestampToDeploymentLabel>
   </PropertyGroup>
 </Project>

@@ -3,21 +3,23 @@
 <head>
     <title>Search Wiki Titles</title>
     <meta charset="utf-8" />
-    <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="crawler.js"></script>
     <link rel="stylesheet" type="text/css" href="search.css">
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 </head>
 <body>
     <div id="container">
         <div id="XML">The crwaler is loading</div>
-        <div id="xmlque"> 54 XML links in the Queue</div>
-        <div id="htmlque"> 492 HTML links in the Queue</div>
+        <div id="xmlque"> <span id="xmlcount"></span> XML links in the Queue</div>
+        <div id="htmlque"> <span id="htmlcount"></span> HTML links in the Queue</div>
 
+        <form role="form">
+            <button id="button" type="button">Submit</button><br>
+        </form>
+        <div id="recenttenurls"></div>
     </div>
-    <form autocomplete="off">
-        <input id="inputbox" type="text" name="title" placeholder="cnn.com">
-        <button id="button" type="button">Submit</button><br>
-    </form>
 </body>
 </html>

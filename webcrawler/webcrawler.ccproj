@@ -12,6 +12,7 @@
     <AssemblyName>webcrawler</AssemblyName>
     <StartDevelopmentStorage>True</StartDevelopmentStorage>
     <Name>webcrawler</Name>
+    <PackageEnableRemoteDebugger>False</PackageEnableRemoteDebugger>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
