@@ -138,7 +138,6 @@ namespace WebRole1
                 stripwww = stripwww.Replace("www.", "");
             }
             stripwww = "http://" + stripwww;
-            return stripwww;
             string encoded = new md5coding(stripwww).encoded;
             TableOperation retrieveOperation = TableOperation.Retrieve<pagetitle>("title", encoded);
             TableResult retrievedResult = table.Execute(retrieveOperation);
