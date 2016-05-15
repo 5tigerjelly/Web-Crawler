@@ -3,7 +3,6 @@
     document.getElementById("button").onclick = goWebsite;
 
     function goWebsite() {
-
         $.ajax({
             type: "POST",
             data: JSON.stringify({ address: $("input").val() }),

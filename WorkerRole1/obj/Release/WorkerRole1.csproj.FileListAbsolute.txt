@@ -62,3 +62,5 @@ Z:\Desktop\Web-Crawler\WorkerRole1\bin\Release\zh-Hant\System.Spatial.resources.
 Z:\Desktop\Web-Crawler\WorkerRole1\obj\Release\WorkerRole1.csprojResolveAssemblyReference.cache
 Z:\Desktop\Web-Crawler\WorkerRole1\obj\Release\WorkerRole1.dll
 Z:\Desktop\Web-Crawler\WorkerRole1\obj\Release\WorkerRole1.pdb
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Release\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\WorkerRole1\bin\Release\ClassLibrary1.pdb

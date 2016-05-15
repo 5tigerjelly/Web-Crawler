@@ -34,7 +34,7 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            xmlqueue.AddMessage(message);
+            //xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
             //regex
             // ^\/\/.*\..*$ for links without http in the front but has //
@@ -83,7 +83,7 @@ namespace WebRole1
             CloudQueue htmlqueue = getCloudQueue("htmlque");
             CloudTable table = getCloudTable("resulttable");
             CloudTable recentten = getCloudTable("lastten");
-            CloudTable errortable = getCloudTable("errortable");
+            CloudTable errortable = getCloudTable("errortable1");
             table.Delete();
             recentten.Delete();
             errortable.Delete();
@@ -250,7 +250,7 @@ namespace WebRole1
             {
                 CloudTable table = getCloudTable("resulttable");
                 CloudTable recentten = getCloudTable("lastten");
-                CloudTable errortable = getCloudTable("errortable");
+                CloudTable errortable = getCloudTable("errortable1");
                 CloudQueue htmlqueue = getCloudQueue("htmlque");
                 List<string> result = new List<string>();
                 Uri cnn = new Uri("http://cnn.com/");
@@ -260,8 +260,8 @@ namespace WebRole1
                 
                 List<string> lasttenadded = new List<string>();
                 HtmlWeb hw = new HtmlWeb();
-                //HtmlDocument webpage;
                 pagetitle urlTableElement;
+                HtmlDocument webpage = new HtmlDocument();
                 while (check)
                 {
                     Thread.Sleep(100);
@@ -271,105 +271,112 @@ namespace WebRole1
                     {
                         string url = xmlLink.AsString;
                         tableList.Add(url);
-                        HtmlDocument webpage = hw.Load(url);
-                        if (hw.StatusCode == HttpStatusCode.OK)
+                        ///
+                        using (var client = new WebClient())
                         {
-                            DateTime pubdate1;
-                            HtmlNode pagetitlestring = webpage.DocumentNode.SelectSingleNode("//head/title");
-                            if (pagetitlestring != null)
+                            try
                             {
-                                string temptitle = pagetitlestring.InnerText;
-                                HtmlNode pubdate = webpage.DocumentNode.SelectSingleNode("//head/meta[@name='lastmod']");
-                                if (pubdate != null)
-                                {
-                                    pubdate1 = DateTime.Parse(pubdate.Attributes["content"].Value);
-                                }
-                                else
-                                {
-                                    pubdate1 = DateTime.Today;
-                                }
+                                string linking = client.DownloadString(url);
+                                webpage.LoadHtml(linking);
 
-                                urlTableElement = new pagetitle(temptitle, url, pubdate1);
-                                TableOperation insertOp = TableOperation.Insert(urlTableElement);
-                                table.Execute(insertOp);
-                                lasttenadded = updateUrl(lasttenadded, url, recentten);
-                                if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
+                                DateTime pubdate1;
+                                HtmlNode pagetitlestring = webpage.DocumentNode.SelectSingleNode("//head/title");
+                                if (pagetitlestring != null)
                                 {
-                                    foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
+                                    string temptitle = pagetitlestring.InnerText;
+                                    HtmlNode pubdate = webpage.DocumentNode.SelectSingleNode("//head/meta[@name='lastmod']");
+                                    if (pubdate != null)
                                     {
-                                        string templink = link.Attributes["href"].Value;
-                                        if (templink.StartsWith("//"))
+                                        pubdate1 = DateTime.Parse(pubdate.Attributes["content"].Value);
+                                    }
+                                    else
+                                    {
+                                        pubdate1 = DateTime.Today;
+                                    }
+
+                                    urlTableElement = new pagetitle(temptitle, url, pubdate1);
+                                    TableOperation insertOp = TableOperation.Insert(urlTableElement);
+                                    table.Execute(insertOp);
+                                    lasttenadded = updateUrl(lasttenadded, url, recentten);
+                                    if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
+                                    {
+                                        foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                         {
-                                            templink = "http:" + templink;
-                                        }
-                                        else if (templink.StartsWith("/"))
-                                        {
-                                            templink = "http://" + new Uri(url).Host + templink;
-                                        }
-                                        if (templink.StartsWith("http")) {
-                                            Uri currentUri2 = new Uri(templink);
-                                            if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
+                                            string templink = link.Attributes["href"].Value;
+                                            if (templink.StartsWith("//"))
                                             {
-                                                if (!urlList.Contains(templink))
+                                                templink = "http:" + templink;
+                                            }
+                                            else if (templink.StartsWith("/"))
+                                            {
+                                                templink = "http://" + new Uri(url).Host + templink;
+                                            }
+                                            if (templink.StartsWith("http"))
+                                            {
+                                                Uri currentUri2 = new Uri(templink);
+                                                if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
                                                 {
-                                                    bool checkdisallow = true;
-                                                    foreach (string disallowlink in disallowList)
+                                                    if (!urlList.Contains(templink))
                                                     {
-                                                        if (templink.Contains(disallowlink))
+                                                        bool checkdisallow = true;
+                                                        foreach (string disallowlink in disallowList)
                                                         {
-                                                            checkdisallow = false;
-                                                            foreach (string allowlink in allowList)
+                                                            if (templink.Contains(disallowlink))
                                                             {
-                                                                if (templink.Contains(allowlink))
+                                                                checkdisallow = false;
+                                                                foreach (string allowlink in allowList)
                                                                 {
-                                                                    checkdisallow = true;
+                                                                    if (templink.Contains(allowlink))
+                                                                    {
+                                                                        checkdisallow = true;
+                                                                    }
                                                                 }
                                                             }
                                                         }
-                                                    }
-                                                    if (checkdisallow)
-                                                    {
+                                                        if (checkdisallow)
+                                                        {
 
-                                                        urlList.Add(templink);
-                                                        result.Add(templink);
-                                                        CloudQueueMessage message1 = new CloudQueueMessage(templink);
-                                                        htmlqueue.AddMessage(message1);
+                                                            urlList.Add(templink);
+                                                            result.Add(templink);
+                                                            CloudQueueMessage message1 = new CloudQueueMessage(templink);
+                                                            htmlqueue.AddMessage(message1);
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
-                            /*else
-                            {
-                                //redirecting page with no title
-                                string newpage = webpage.DocumentNode.SelectSingleNode("//head/link").Attributes["href"].Value;
-                                if (newpage.StartsWith("http") && (newpage.Contains("cnn.com")
-                                        || newpage.Contains("bleacherreport.com/nba")))
+                                /*else
                                 {
-                                    if (!urlList.Contains(newpage))
+                                    //redirecting page with no title
+                                    string newpage = webpage.DocumentNode.SelectSingleNode("//head/link").Attributes["href"].Value;
+                                    if (newpage.StartsWith("http") && (newpage.Contains("cnn.com")
+                                            || newpage.Contains("bleacherreport.com/nba")))
                                     {
-                                        urlList.Add(newpage);
-                                        result.Add(newpage);
-                                        CloudQueueMessage message1 = new CloudQueueMessage(newpage);
-                                        htmlqueue.AddMessage(message1);
+                                        if (!urlList.Contains(newpage))
+                                        {
+                                            urlList.Add(newpage);
+                                            result.Add(newpage);
+                                            CloudQueueMessage message1 = new CloudQueueMessage(newpage);
+                                            htmlqueue.AddMessage(message1);
+                                        }
+
                                     }
-
-                                }
-                            }*/
+                                }*/
 
 
-                        }
-                        else
-                        {
-                            //404 or website not found error
-                            if (!urlList.Contains(xmlLink.AsString))
+                            }
+                            catch (Exception e)
                             {
-                                urlList.Add(xmlLink.AsString);
-                                urlTableElement = new pagetitle(xmlLink.AsString);
-                                TableOperation insertOp = TableOperation.Insert(urlTableElement);
-                                errortable.Execute(insertOp);
+                                //404 or website not found error
+                                if (!urlList.Contains(xmlLink.AsString))
+                                {
+                                    urlList.Add(xmlLink.AsString);
+                                    errortitle urlerrorElement = new errortitle(xmlLink.AsString, e.Message);
+                                    TableOperation insertOp = TableOperation.Insert(urlerrorElement);
+                                    errortable.Execute(insertOp);
+                                }
                             }
                         }
                     }

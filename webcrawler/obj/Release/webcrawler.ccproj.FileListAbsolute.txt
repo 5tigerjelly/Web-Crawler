@@ -130,6 +130,9 @@ Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\zh-Hant\Microsoft.Data
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\zh-Hant\Microsoft.Data.OData.resources.dll
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\zh-Hant\Microsoft.Data.Services.Client.resources.dll
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\zh-Hant\System.Spatial.resources.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\bin\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\ClassLibrary1.pdb
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\admin.asmx
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\crawler.js
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\dashboard.html

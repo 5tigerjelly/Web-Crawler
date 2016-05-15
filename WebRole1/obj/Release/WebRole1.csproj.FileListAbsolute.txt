@@ -93,3 +93,5 @@ Z:\Desktop\Web-Crawler\WebRole1\bin\zh-Hant\System.Spatial.resources.dll
 Z:\Desktop\Web-Crawler\WebRole1\obj\Release\WebRole1.csprojResolveAssemblyReference.cache
 Z:\Desktop\Web-Crawler\WebRole1\obj\Release\WebRole1.dll
 Z:\Desktop\Web-Crawler\WebRole1\obj\Release\WebRole1.pdb
+Z:\Desktop\Web-Crawler\WebRole1\bin\ClassLibrary1.dll
+Z:\Desktop\Web-Crawler\WebRole1\bin\ClassLibrary1.pdb
