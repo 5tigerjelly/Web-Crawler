@@ -10,6 +10,7 @@ using System.Threading;
 using System.Web.Services;
 using System.Diagnostics;
 using System.Web.Script.Serialization;
+using System.Web.Script.Services;
 
 namespace WebRole1
 {
@@ -103,21 +104,21 @@ namespace WebRole1
         }
 
 
-        /*
-            [WebMethod]
-            public List<string> lasttenpages()
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string lasttenpages()
+        {
+            CloudTable recentten = getCloudTable("lastten");
+            TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
+            TableResult retrievedResult = recentten.Execute(retrieveOperation);
+            if (retrievedResult.Result != null)
             {
-                CloudTable recentten = getCloudTable("lastten");
-                TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
-                TableResult retrievedResult = recentten.Execute(retrieveOperation);
-                if (retrievedResult.Result != null)
-                {
-                    var json = new JavaScriptSerializer().Serialize(retrievedResult.Result);
-                    return ((resenturl)retrievedResult.Result).lastitems.Split(',').ToList();
-                }
-                return new List<string>();
+                var json = new JavaScriptSerializer().Serialize(retrievedResult.Result);
+                return json;
             }
-        */
+            return new JavaScriptSerializer().Serialize(retrievedResult.Result); //change later
+        }
+
 
         [WebMethod]
         public string searchURL(string search)

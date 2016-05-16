@@ -63,21 +63,27 @@
           });*/
 
         $.ajax({
-            type: "POST",
+            type: "GET",
             data: {},
             dataType: "text",
             url: "admin.asmx/HTMLQueueCount",
+            contentType: "application/json; charset=utf-8",
             success: function (data) {
-                htmlcount = parseInt(data.data);
-                conesole.log(data);
+                var lasttendata = JSON.parse(data);
+                var tempval = $(xml).find("int");
+                var parsedata = $.parseXML(data);
+
+                console.log(tempval);
+                htmlcount = parseInt(data);
+                console.log(htmlcount);
                 document.getElementById("htmlcount").innerHTML = data;
             }
         });
 
         $.ajax({
-            type: "POST",
+            type: "GET",
             data: {},
-            dataType: "text",
+            dataType: "xml",
             url: "admin.asmx/XmlQueueCount",
             success: function (data) {
                 xmlcount = parseInt(data);
@@ -89,11 +95,17 @@
             data: {},
             dataType: "text",
             url: "admin.asmx/lasttenpages",
+            contentType: "application/json; charset=utf-8",
             success: function (data) {
-                document.getElementById("recenttenurls").innerHTML = data; //[0].join("<br />")
+                var lasttendata = JSON.parse(data);
+                var lasttendata1 = JSON.parse(lasttendata.d);
+                document.getElementById("recenttenurls").innerHTML = lasttendata1.lastitems;
+                document.getElementById("crwaledcount").innerHTML = lasttendata1.count;
+                document.getElementById("totalfound").innerHTML = lasttendata1.totalurl;
             }
         });
-
+        //console.log("xml" + xmlcount);
+        //console.log("html" + htmlcount);
         if (!crwaling) {
             statespan.innerHTML = "1";
         } else if (xmlcount == 0 && htmlcount == 0) {
