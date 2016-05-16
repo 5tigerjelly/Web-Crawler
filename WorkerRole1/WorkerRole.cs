@@ -214,100 +214,76 @@ namespace WorkerRole1
                                 webpage.LoadHtml(linking);
 
                                 DateTime pubdate1;
-                                HtmlNode pagetitlestring = webpage.DocumentNode.SelectSingleNode("//head/title");
-                                if (pagetitlestring != null)
+                                string temptitle = webpage.DocumentNode.SelectSingleNode("//head/title").InnerText ?? "";
+                                HtmlNode pubdate = webpage.DocumentNode.SelectSingleNode("//head/meta[@name='lastmod']");
+                                if (pubdate != null)
                                 {
-                                    string temptitle = pagetitlestring.InnerText;
-                                    HtmlNode pubdate = webpage.DocumentNode.SelectSingleNode("//head/meta[@name='lastmod']");
-                                    if (pubdate != null)
-                                    {
-                                        pubdate1 = DateTime.Parse(pubdate.Attributes["content"].Value);
-                                    }
-                                    else
-                                    {
-                                        pubdate1 = DateTime.Today;
-                                    }
+                                    pubdate1 = DateTime.Parse(pubdate.Attributes["content"].Value);
+                                }
+                                else
+                                {
+                                    pubdate1 = DateTime.Today;
+                                }
 
-                                    Uri tempuri = new Uri(url);
-                                    string stripwww = tempuri.Host + tempuri.PathAndQuery;
-                                    if (stripwww.StartsWith("www"))
-                                    {
-                                        stripwww = stripwww.Replace("www.", "");
-                                    }
-                                    stripwww = "http://" + stripwww;
+                                Uri tempuri = new Uri(url);
+                                string stripwww = tempuri.Host + tempuri.PathAndQuery;
+                                if (stripwww.StartsWith("www"))
+                                {
+                                    stripwww = stripwww.Replace("www.", "");
+                                }
+                                stripwww = "http://" + stripwww;
 
-                                    urlTableElement = new pagetitle(temptitle, stripwww, pubdate1);
-                                    TableOperation insertOp = TableOperation.Insert(urlTableElement);
-                                    table.Execute(insertOp);
-                                    lasttenadded = updateUrl(lasttenadded, url, recentten);
-                                    if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
+                                urlTableElement = new pagetitle(temptitle, stripwww, pubdate1);
+                                TableOperation insertOp = TableOperation.Insert(urlTableElement);
+                                table.Execute(insertOp);
+                                lasttenadded = updateUrl(lasttenadded, url, recentten);
+                                if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
+                                {
+                                    foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                     {
-                                        foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
+                                        string templink = link.Attributes["href"].Value;
+                                        if (templink.StartsWith("//"))
                                         {
-                                            string templink = link.Attributes["href"].Value;
-                                            if (templink.StartsWith("//"))
+                                            templink = "http:" + templink;
+                                        }
+                                        else if (templink.StartsWith("/"))
+                                        {
+                                            templink = "http://" + tempuri.Host + templink;
+                                        }
+                                        if (templink.StartsWith("http"))
+                                        {
+                                            Uri currentUri2 = new Uri(templink);
+                                            if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
                                             {
-                                                templink = "http:" + templink;
-                                            }
-                                            else if (templink.StartsWith("/"))
-                                            {
-                                                templink = "http://" + tempuri.Host + templink;
-                                            }
-                                            if (templink.StartsWith("http"))
-                                            {
-                                                Uri currentUri2 = new Uri(templink);
-                                                if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
+                                                if (!urlList.Contains(templink))
                                                 {
-                                                    if (!urlList.Contains(templink))
+                                                    bool checkdisallow = true;
+                                                    foreach (string disallowlink in disallowList)
                                                     {
-                                                        bool checkdisallow = true;
-                                                        foreach (string disallowlink in disallowList)
+                                                        if (templink.Contains(disallowlink))
                                                         {
-                                                            if (templink.Contains(disallowlink))
+                                                            checkdisallow = false;
+                                                            foreach (string allowlink in allowList)
                                                             {
-                                                                checkdisallow = false;
-                                                                foreach (string allowlink in allowList)
+                                                                if (templink.Contains(allowlink))
                                                                 {
-                                                                    if (templink.Contains(allowlink))
-                                                                    {
-                                                                        checkdisallow = true;
-                                                                    }
+                                                                    checkdisallow = true;
                                                                 }
                                                             }
                                                         }
-                                                        if (checkdisallow)
-                                                        {
-
-                                                            urlList.Add(templink);
-                                                            result.Add(templink);
-                                                            CloudQueueMessage message1 = new CloudQueueMessage(templink);
-                                                            htmlqueue.AddMessage(message1);
-                                                        }
+                                                    }
+                                                    if (checkdisallow)
+                                                    {
+                                                        urlList.Add(templink);
+                                                        result.Add(templink);
+                                                        CloudQueueMessage message1 = new CloudQueueMessage(templink);
+                                                        htmlqueue.AddMessage(message1);
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                /*else
-                                {
-                                    //redirecting page with no title
-                                    string newpage = webpage.DocumentNode.SelectSingleNode("//head/link").Attributes["href"].Value;
-                                    if (newpage.StartsWith("http") && (newpage.Contains("cnn.com")
-                                            || newpage.Contains("bleacherreport.com/nba")))
-                                    {
-                                        if (!urlList.Contains(newpage))
-                                        {
-                                            urlList.Add(newpage);
-                                            result.Add(newpage);
-                                            CloudQueueMessage message1 = new CloudQueueMessage(newpage);
-                                            htmlqueue.AddMessage(message1);
-                                        }
-
-                                    }
-                                }*/
-
-
                             }
                             catch (Exception e)
                             {

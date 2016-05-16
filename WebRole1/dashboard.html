@@ -1,25 +1,43 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Search Wiki Titles</title>
+    <title>Web Crawler</title>
     <meta charset="utf-8" />
     <script type="text/javascript" src="crawler.js"></script>
     <link rel="stylesheet" type="text/css" href="search.css">
-    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 </head>
 <body>
     <div id="container">
-        <div id="XML">The crwaler is loading</div>
-        <div id="xmlque"> <span id="xmlcount"></span> XML links in the Queue</div>
-        <div id="htmlque"> <span id="htmlcount"></span> HTML links in the Queue</div>
 
-        <form role="form">
-            <button id="button" type="button">Submit</button><br>
-        </form>
+        <div class="databox"> <span id="htmlcount" class="dataspan">0</span><br /> HTML links in the Queue</div>
+        <div class="databox"> <span id="crwaledcount" class="dataspan">0</span><br /> HTML links Crwaled</div>
+        <div class="databox"> <span id="totalfound" class="dataspan">0</span> <br />HTML links found</div>
+
+        <div class="databox"> <span id="state" class="dataspan">Idle</span><br />current crwaler state</div>
+        <div class="databox"> <span id="memorycount" class="dataspan">0MB</span><br /> Memory</div>
+        <div class="databox"> <span id="cpucount" class="dataspan">0%</span> <br />CPU usage</div>
+
+        <div id="searchresult">This is where the title appears</div>
+        <div id="searchbox">
+            <form role="form">
+                <input type="text" name="firstname">
+                <button id="searchurl" type="button">Search</button>
+            </form>
+        </div>
+        <div id="buttons">
+            <button id="go" type="button">GO</button>
+            <button id="stop" type="button">STOP</button>
+            <button id="refresh" type="button">REFRESH</button>
+        </div>
         <div id="recenttenurls"></div>
+        <div id="errorlinks"></div>
+        <form role="form">
+            <input type="text" name="morelinks">
+            <button id="addmorelink" type="button">Search</button>
+        </form>
     </div>
 </body>
 </html>

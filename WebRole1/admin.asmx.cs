@@ -1,17 +1,14 @@
 ﻿using ClassLibrary1;
-using HtmlAgilityPack;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Web.Services;
-using System.Xml.Linq;
+using System.Diagnostics;
 
 namespace WebRole1
 {
@@ -23,11 +20,6 @@ namespace WebRole1
     [System.Web.Script.Services.ScriptService]
     public class WebService1 : System.Web.Services.WebService
     {
-        //I think this can be private field outside the method because it 
-        //does not have to do with multithreding.
-        private List<string> allowList;
-        private List<string> disallowList;
-
         [WebMethod]
         public string addtwolinks()
         {
@@ -78,8 +70,6 @@ namespace WebRole1
             errortable.Delete();
             xmlqueue.Clear();
             htmlqueue.Clear();
-            allowList = null;
-            disallowList = null;
             Thread.Sleep(40000);
             return "Done Clearing";
         }
@@ -119,7 +109,7 @@ namespace WebRole1
             {
                 return ((resenturl)retrievedResult.Result).lastitems.Split(',').ToList();
             }
-            return  new List<string>();
+            return new List<string>();
         }
 
         [WebMethod]
@@ -149,7 +139,7 @@ namespace WebRole1
             {
                 return search + " was not found.";
             }
-            
+
         }
 
         /*        
@@ -183,10 +173,30 @@ namespace WebRole1
 
         private int queueCounter(string quename)
         {
-            CloudQueue q = getCloudQueue(quename);
+            CloudQueue q = getCloudQueue("htmlque");
             q.FetchAttributes();
             int? queueCount = q.ApproximateMessageCount;
             return (int)queueCount;
+        }
+
+        [WebMethod]
+        public int getCPUPerformance()
+        {
+            PerformanceCounter theCPUCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            theCPUCounter.NextValue();
+            Thread.Sleep(500);
+            return (int)theCPUCounter.NextValue();
+            
+        }
+
+
+        [WebMethod]
+        public int getPerformance()
+        {
+            using (PerformanceCounter theMemCounter = new PerformanceCounter("Memory", "Available MBytes"))
+            {
+                return (int)theMemCounter.NextValue();
+            }
         }
     }
 }
