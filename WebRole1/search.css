@@ -20,8 +20,8 @@ div{
 .databox{
     background-color: #FFFFFF;
     width: 30%;
-    height: 100pt;
-    padding-top: 12pt;
+    height: 90pt;
+    padding-top: 10pt;
     float: left;
 }
 
@@ -30,7 +30,8 @@ div{
 }
 
 .dataspan{
-    font-size: 30pt;
+    font-size: 40pt;
+    font-weight: 100;
 }
 
 #searchresult{

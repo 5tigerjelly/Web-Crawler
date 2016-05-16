@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Web.Services;
 using System.Diagnostics;
+using System.Web.Script.Serialization;
 
 namespace WebRole1
 {
@@ -26,7 +27,7 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            xmlqueue.AddMessage(message);
+            //xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
             restart();
             //regex
@@ -59,6 +60,8 @@ namespace WebRole1
         [WebMethod]
         public string clearIndex()
         {
+            stopCrawl();
+            Thread.Sleep(5000);
             //table storage
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
@@ -99,18 +102,22 @@ namespace WebRole1
             return table;
         }
 
-        [WebMethod]
-        public List<string> lasttenpages()
-        {
-            CloudTable recentten = getCloudTable("lastten");
-            TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
-            TableResult retrievedResult = recentten.Execute(retrieveOperation);
-            if (retrievedResult.Result != null)
+
+        /*
+            [WebMethod]
+            public List<string> lasttenpages()
             {
-                return ((resenturl)retrievedResult.Result).lastitems.Split(',').ToList();
+                CloudTable recentten = getCloudTable("lastten");
+                TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
+                TableResult retrievedResult = recentten.Execute(retrieveOperation);
+                if (retrievedResult.Result != null)
+                {
+                    var json = new JavaScriptSerializer().Serialize(retrievedResult.Result);
+                    return ((resenturl)retrievedResult.Result).lastitems.Split(',').ToList();
+                }
+                return new List<string>();
             }
-            return new List<string>();
-        }
+        */
 
         [WebMethod]
         public string searchURL(string search)

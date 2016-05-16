@@ -31,6 +31,7 @@ namespace WorkerRole1
         private CloudQueue xmlqueue;
         private CloudQueue stopgo;
         private CloudStorageAccount storageAccount;
+        private int totalurl;
 
         public override void Run()
         {
@@ -42,7 +43,8 @@ namespace WorkerRole1
             htmlqueue = getCloudQueue("htmlque");
             xmlqueue = getCloudQueue("xmlque");
             stopgo = getCloudQueue("stopgo");
-            
+            totalurl = 0;
+
             bool checkstoporgo = false;
             while (true)
             {
@@ -196,6 +198,7 @@ namespace WorkerRole1
                 HtmlWeb hw = new HtmlWeb();
                 pagetitle urlTableElement;
                 HtmlDocument webpage = new HtmlDocument();
+                
                 while (check)
                 {
                     Thread.Sleep(100);
@@ -236,11 +239,12 @@ namespace WorkerRole1
                                 urlTableElement = new pagetitle(temptitle, stripwww, pubdate1);
                                 TableOperation insertOp = TableOperation.Insert(urlTableElement);
                                 table.Execute(insertOp);
-                                lasttenadded = updateUrl(lasttenadded, url, recentten);
+                                lasttenadded = updateUrl(lasttenadded, url, recentten, totalurl);
                                 if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
                                 {
                                     foreach (HtmlNode link in webpage.DocumentNode.SelectNodes("//a[@href]"))
                                     {
+                                        totalurl++;
                                         string templink = link.Attributes["href"].Value;
                                         if (templink.StartsWith("//"))
                                         {
@@ -306,7 +310,7 @@ namespace WorkerRole1
         }
 
         //updating the table with last ten urls
-        private List<string> updateUrl(List<string> lasttenadded, string link, CloudTable recentten)
+        private List<string> updateUrl(List<string> lasttenadded, string link, CloudTable recentten, int totalurl)
         {
             if (lasttenadded.Count < 10)
             {
@@ -324,12 +328,13 @@ namespace WorkerRole1
             {
                 updateURL.lastitems = string.Join(",", lasttenadded.ToArray());
                 updateURL.count = updateURL.count + 1;
+                updateURL.totalurl = totalurl;
                 TableOperation insertOrReplaceOperation = TableOperation.InsertOrReplace(updateURL);
                 recentten.Execute(insertOrReplaceOperation);
             }
             else
             {
-                resenturl lasttentitles = new resenturl(lasttenadded.ToString());
+                resenturl lasttentitles = new resenturl(lasttenadded.ToString(), totalurl);
                 TableOperation insertOp = TableOperation.Insert(lasttentitles);
                 recentten.Execute(insertOp);
             }
