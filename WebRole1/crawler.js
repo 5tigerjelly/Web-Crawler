@@ -27,6 +27,7 @@
     }
 
     function stop() {
+        crwaling = false;
         $.ajax({
             type: "POST",
             data: {},
@@ -41,11 +42,13 @@
     function searchurllink() {
         $.ajax({
             type: "POST",
-            data: {},
-            dataType: "text",
+            data: JSON.stringify({ search: $("#searchval").val() }),
+            dataType: "json",
             url: "admin.asmx/searchURL",
+            contentType: "application/json; charset=utf-8",
             success: function (data) {
-                document.getElementById("searchresult").innerHTML = data;
+                console.log(data.d);
+                document.getElementById("searchresult").innerHTML = data.d;
             }
         });
     }
@@ -114,7 +117,7 @@
         console.log("xml" + xmlcount);
         console.log("html" + htmlcount);
         if (!crwaling) {
-            statespan.innerHTML = "Idle";
+            document.getElementById("state").innerHTML = "Idle";
         } else if (xmlcount == 0 && htmlcount == 0) {
             //idle
             document.getElementById("state").innerHTML = "Idle";

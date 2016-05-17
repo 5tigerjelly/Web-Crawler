@@ -136,6 +136,7 @@ Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WorkerRole1\ClassLibrary1.pdb
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\admin.asmx
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\crawler.js
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\dashboard.html
+Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\index.html
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\packages.config
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\search.css
 Z:\Desktop\Web-Crawler\webcrawler\obj\Release\WebRole1\Web.config

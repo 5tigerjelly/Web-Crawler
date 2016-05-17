@@ -22,8 +22,8 @@ namespace WorkerRole1
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
 
-        private List<string> allowList;
-        private List<string> disallowList;
+        private static List<string> allowList;
+        private static List<string> disallowList;
         private CloudTable table;
         private CloudTable recentten;
         private CloudTable errortable;
@@ -59,7 +59,7 @@ namespace WorkerRole1
         {
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            xmlqueue.AddMessage(message);
+            //xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
         }
 

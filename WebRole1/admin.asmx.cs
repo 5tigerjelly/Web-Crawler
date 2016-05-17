@@ -22,10 +22,27 @@ namespace WebRole1
     [System.Web.Script.Services.ScriptService]
     public class WebService1 : System.Web.Services.WebService
     {
+
+        private CloudTable table;
+        private CloudTable recentten;
+        private CloudTable errortable;
+        private CloudQueue htmlqueue;
+        private CloudQueue xmlqueue;
+        private CloudQueue stopgo;
+
+        public WebService1()
+        {
+            table = getCloudTable("resulttable");
+            recentten = getCloudTable("lastten");
+            errortable = getCloudTable("errortable1");
+            htmlqueue = getCloudQueue("htmlque");
+            xmlqueue = getCloudQueue("xmlque");
+            stopgo = getCloudQueue("stopgo");
+        }
         [WebMethod]
         public string addtwolinks()
         {
-            CloudQueue xmlqueue = getCloudQueue("xmlque");
+            //CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
             xmlqueue.AddMessage(message);
@@ -43,7 +60,7 @@ namespace WebRole1
         [WebMethod]
         public string restart()
         {
-            CloudQueue stopgo = getCloudQueue("stopgo");
+            //CloudQueue stopgo = getCloudQueue("stopgo");
             CloudQueueMessage message = new CloudQueueMessage("go");
             stopgo.AddMessage(message);
             return "GO";
@@ -52,7 +69,7 @@ namespace WebRole1
         [WebMethod]
         public string stopCrawl()
         {
-            CloudQueue stopgo = getCloudQueue("stopgo");
+           // CloudQueue stopgo = getCloudQueue("stopgo");
             CloudQueueMessage message = new CloudQueueMessage("stop");
             stopgo.AddMessage(message);
             return "STOP";
@@ -64,11 +81,11 @@ namespace WebRole1
             stopCrawl();
             Thread.Sleep(5000);
             //table storage
-            CloudQueue xmlqueue = getCloudQueue("xmlque");
-            CloudQueue htmlqueue = getCloudQueue("htmlque");
-            CloudTable table = getCloudTable("resulttable");
-            CloudTable recentten = getCloudTable("lastten");
-            CloudTable errortable = getCloudTable("errortable1");
+           // CloudQueue xmlqueue = getCloudQueue("xmlque");
+           // CloudQueue htmlqueue = getCloudQueue("htmlque");
+            //CloudTable table = getCloudTable("resulttable");
+            //CloudTable recentten = getCloudTable("lastten");
+            //CloudTable errortable = getCloudTable("errortable1");
             table.DeleteIfExists();
             recentten.DeleteIfExists();
             errortable.DeleteIfExists();
@@ -108,7 +125,7 @@ namespace WebRole1
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string lasttenpages()
         {
-            CloudTable recentten = getCloudTable("lastten");
+            //CloudTable recentten = getCloudTable("lastten");
             TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
             TableResult retrievedResult = recentten.Execute(retrieveOperation);
             if (retrievedResult.Result != null)
@@ -122,7 +139,7 @@ namespace WebRole1
         [WebMethod]
         public string searchURL(string search)
         {
-            CloudTable table = getCloudTable("resulttable");
+            //CloudTable table = getCloudTable("resulttable");
 
             if (!search.StartsWith("http"))
             {
