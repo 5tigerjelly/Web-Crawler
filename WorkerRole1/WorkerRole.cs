@@ -38,7 +38,7 @@ namespace WorkerRole1
             storageAccount = CloudStorageAccount.Parse(
                 ConfigurationManager.AppSettings["StorageConnectionString"]);
             table = getCloudTable("resulttable");
-            recentten = getCloudTable("lastten2");
+            recentten = getCloudTable("lastten");
             errortable = getCloudTable("errortable1");
             htmlqueue = getCloudQueue("htmlque");
             xmlqueue = getCloudQueue("xmlque");

@@ -16,16 +16,16 @@ namespace ClassLibrary1
             RowKey = "rowkey";
             lastitems = "";
             count = 1;
-            totalurl = 0;
+            totalurl = 1;
         }
 
-        public resenturl(string link, int totalurl)
+        public resenturl(string link, int total)
         {
             PartitionKey = "lastten";
             RowKey = "rowkey";
             lastitems = link;
             count = 1;
-            this.totalurl = totalurl;
+            totalurl = total;
         }
 
         public string lastitems { get; set; }

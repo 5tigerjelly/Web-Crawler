@@ -67,7 +67,7 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
             CloudTable table = getCloudTable("resulttable");
-            CloudTable recentten = getCloudTable("lastten2");
+            CloudTable recentten = getCloudTable("lastten");
             CloudTable errortable = getCloudTable("errortable1");
             table.DeleteIfExists();
             recentten.DeleteIfExists();
@@ -108,13 +108,12 @@ namespace WebRole1
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string lasttenpages()
         {
-            CloudTable recentten = getCloudTable("lastten2");
+            CloudTable recentten = getCloudTable("lastten");
             TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
             TableResult retrievedResult = recentten.Execute(retrieveOperation);
             if (retrievedResult.Result != null)
             {
-                var json = new JavaScriptSerializer().Serialize(retrievedResult.Result);
-                return json;
+                return new JavaScriptSerializer().Serialize(retrievedResult.Result);
             }
             return new JavaScriptSerializer().Serialize(new pagetitle());
         }

@@ -1,6 +1,6 @@
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Starting DiagnosticPlugin.exe DiagnosticPlugin-ShutdownEvent DiagnosticPlugin-TotalShutdownEvent -wadVer1v5
-DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:01:38 AM] Failed to save IIS Directory state
-DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:01:38 AM] System.Runtime.InteropServices.COMException (0x80040154): Retrieving the COM class factory for component with CLSID {2B72133B-3F5B-4602-8952-803546CE3344} failed due to the following error: 80040154 Class not registered (Exception from HRESULT: 0x80040154 (REGDB_E_CLASSNOTREG)).
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Starting DiagnosticPlugin.exe DiagnosticPlugin-ShutdownEvent DiagnosticPlugin-TotalShutdownEvent -wadVer1v5
+DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:41:12 AM] Failed to save IIS Directory state
+DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:41:12 AM] System.Runtime.InteropServices.COMException (0x80040154): Retrieving the COM class factory for component with CLSID {2B72133B-3F5B-4602-8952-803546CE3344} failed due to the following error: 80040154 Class not registered (Exception from HRESULT: 0x80040154 (REGDB_E_CLASSNOTREG)).
    at System.Runtime.Remoting.RemotingServices.AllocateUninitializedObject(RuntimeType objectType)
    at System.Runtime.Remoting.Activation.ActivationServices.CreateInstance(RuntimeType serverType)
    at System.Runtime.Remoting.Activation.ActivationServices.IsCurrentContextOK(RuntimeType serverType, Object[] props, Boolean bNewObj)
@@ -13,18 +13,18 @@ DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:01:38 AM] System.Runtime.InteropS
    at Microsoft.Web.Administration.ServerManager.get_SitesSection()
    at Microsoft.Web.Administration.ServerManager.get_Sites()
    at Microsoft.Azure.Plugins.Plugin.DiagnosticsPluginManager.SaveIISDirectoryState()
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Starting DiagnosticsPlugin
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Emulator config file set to Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] DiagnosticsStoreRootPath set to: C:\Users\iGuest\AppData\Local\dftmp\Resources\dc0b9b45-707f-4dc5-8f81-2e2635b4b0cb
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Loading config file: Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Config file to read: Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Checking VM Type
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Emulator config file set to Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Extension set to Emulator Mode
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Reading XML configuration file
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Bypassing private config decryption
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] WadCfg is provided in initial configuration. Using that to initialize Diagnostics.
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] <PublicConfig xmlns="http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration">
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Starting DiagnosticsPlugin
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Emulator config file set to Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] DiagnosticsStoreRootPath set to: C:\Users\iGuest\AppData\Local\dftmp\Resources\cea5c972-130d-4111-99b4-0135eccab1ea
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Loading config file: Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Config file to read: Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Checking VM Type
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Emulator config file set to Z:\Desktop\Web-Crawler\webcrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Extension set to Emulator Mode
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Reading XML configuration file
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Bypassing private config decryption
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] WadCfg is provided in initial configuration. Using that to initialize Diagnostics.
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] <PublicConfig xmlns="http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration">
   <WadCfg>
     <DiagnosticMonitorConfiguration overallQuotaInMB="4096">
       <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter="Error" />
@@ -66,11 +66,11 @@ DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] <PublicConfig xml
   </WadCfg>
   <StorageAccount>devstoreaccount1</StorageAccount>
 </PublicConfig>
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Private setting is loaded
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:38 AM] Is config json/xml loaded
-DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:01:39 AM] Microsoft.Azure.Plugins.Plugin.WadConfigValidatorException: Exception when parsing configuration: Error: The 'bufferQuotaInMB' attribute is not declared. line: 19 column: 28
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Private setting is loaded
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:12 AM] Is config json/xml loaded
+DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:41:13 AM] Microsoft.Azure.Plugins.Plugin.WadConfigValidatorException: Exception when parsing configuration: Error: The 'bufferQuotaInMB' attribute is not declared. line: 19 column: 28
 
    at Microsoft.Azure.Plugins.Plugin.WadConfigValidator`1.Initialize(String configString, String schemaPath)
    at Microsoft.Azure.Plugins.Plugin.WadParser.Parse()
-DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:01:39 AM] Failed to parse the WAD config file
-DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:01:39 AM] DiagnosticPlugin.exe exit with code -106
+DiagnosticsPlugin.exe Error: 0 : [5/17/2016 12:41:13 AM] Failed to parse the WAD config file
+DiagnosticsPlugin.exe Information: 0 : [5/17/2016 12:41:13 AM] DiagnosticPlugin.exe exit with code -106
