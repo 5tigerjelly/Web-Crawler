@@ -38,20 +38,29 @@ namespace WorkerRole1
             storageAccount = CloudStorageAccount.Parse(
                 ConfigurationManager.AppSettings["StorageConnectionString"]);
             table = getCloudTable("resulttable");
-            recentten = getCloudTable("lastten");
+            recentten = getCloudTable("lastten2");
             errortable = getCloudTable("errortable1");
             htmlqueue = getCloudQueue("htmlque");
             xmlqueue = getCloudQueue("xmlque");
             stopgo = getCloudQueue("stopgo");
             totalurl = 0;
+            addInitiallink();
 
-            bool checkstoporgo = false;
+            bool checkstoporgo = true;
             while (true)
             {
                 checkstoporgo = checkgostop(checkstoporgo);
                 checkstoporgo = getXML(checkstoporgo);
                 checkstoporgo = getHref(checkstoporgo);
             }
+        }
+
+        private void addInitiallink()
+        {
+            CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
+            CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
+            xmlqueue.AddMessage(message);
+            xmlqueue.AddMessage(message1);
         }
 
         private CloudQueue getCloudQueue(string name)

@@ -63,30 +63,27 @@
           });*/
 
         $.ajax({
-            type: "GET",
+            type: "POST",
             data: {},
             dataType: "text",
             url: "admin.asmx/HTMLQueueCount",
             contentType: "application/json; charset=utf-8",
             success: function (data) {
                 var lasttendata = JSON.parse(data);
-                var tempval = $(xml).find("int");
-                var parsedata = $.parseXML(data);
-
-                console.log(tempval);
-                htmlcount = parseInt(data);
-                console.log(htmlcount);
-                document.getElementById("htmlcount").innerHTML = data;
+                htmlcount = lasttendata.d;
+                document.getElementById("htmlcount").innerHTML = lasttendata.d;
             }
         });
 
         $.ajax({
-            type: "GET",
+            type: "POST",
             data: {},
-            dataType: "xml",
+            dataType: "text",
             url: "admin.asmx/XmlQueueCount",
+            contentType: "application/json; charset=utf-8",
             success: function (data) {
-                xmlcount = parseInt(data);
+                var lasttendata = JSON.parse(data);
+                xmlcount = lasttendata.d;
             }
         });
 
@@ -97,29 +94,39 @@
             url: "admin.asmx/lasttenpages",
             contentType: "application/json; charset=utf-8",
             success: function (data) {
+                var resultbox = document.getElementById("listoften");
+                $('#listoften').empty();
                 var lasttendata = JSON.parse(data);
                 var lasttendata1 = JSON.parse(lasttendata.d);
-                document.getElementById("recenttenurls").innerHTML = lasttendata1.lastitems;
+                var tenlist = lasttendata1.lastitems.split(',');
+                
+                $.each(tenlist, function (index, element) {
+                    var result = document.createElement("li");
+                    result.class = "tenlistli";
+                    result.innerHTML = element;
+                    //result.onclick = clickTitle;
+                    resultbox.appendChild(result);
+                });
                 document.getElementById("crwaledcount").innerHTML = lasttendata1.count;
                 document.getElementById("totalfound").innerHTML = lasttendata1.totalurl;
             }
         });
-        //console.log("xml" + xmlcount);
-        //console.log("html" + htmlcount);
+        console.log("xml" + xmlcount);
+        console.log("html" + htmlcount);
         if (!crwaling) {
-            statespan.innerHTML = "1";
+            statespan.innerHTML = "Idle";
         } else if (xmlcount == 0 && htmlcount == 0) {
             //idle
-            document.getElementById("state").innerHTML = "2";
+            document.getElementById("state").innerHTML = "Idle";
         } else if (xmlcount > 0) {
             //loading
-            document.getElementById("state").innerHTML = "3";
+            document.getElementById("state").innerHTML = "Loading";
         } else if (htmlcount > 0) {
             //crwaling
-            document.getElementById("state").innerHTML = "4";
+            document.getElementById("state").innerHTML = "Crawling";
         } else {
             //stopped
-            document.getElementById("state").innerHTML = "5";
+            document.getElementById("state").innerHTML = "Idle";
         }
 
         $.ajax({

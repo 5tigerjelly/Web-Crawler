@@ -28,7 +28,7 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
             CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            //xmlqueue.AddMessage(message);
+            xmlqueue.AddMessage(message);
             xmlqueue.AddMessage(message1);
             restart();
             //regex
@@ -67,11 +67,11 @@ namespace WebRole1
             CloudQueue xmlqueue = getCloudQueue("xmlque");
             CloudQueue htmlqueue = getCloudQueue("htmlque");
             CloudTable table = getCloudTable("resulttable");
-            CloudTable recentten = getCloudTable("lastten");
+            CloudTable recentten = getCloudTable("lastten2");
             CloudTable errortable = getCloudTable("errortable1");
-            table.Delete();
-            recentten.Delete();
-            errortable.Delete();
+            table.DeleteIfExists();
+            recentten.DeleteIfExists();
+            errortable.DeleteIfExists();
             xmlqueue.Clear();
             htmlqueue.Clear();
             Thread.Sleep(40000);
@@ -108,7 +108,7 @@ namespace WebRole1
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string lasttenpages()
         {
-            CloudTable recentten = getCloudTable("lastten");
+            CloudTable recentten = getCloudTable("lastten2");
             TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("lastten", "rowkey");
             TableResult retrievedResult = recentten.Execute(retrieveOperation);
             if (retrievedResult.Result != null)
@@ -116,7 +116,7 @@ namespace WebRole1
                 var json = new JavaScriptSerializer().Serialize(retrievedResult.Result);
                 return json;
             }
-            return new JavaScriptSerializer().Serialize(retrievedResult.Result); //change later
+            return new JavaScriptSerializer().Serialize(new pagetitle());
         }
 
 
@@ -168,20 +168,22 @@ namespace WebRole1
         }*/
 
         [WebMethod]
-        public int XmlQueueCount()
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string XmlQueueCount()
         {
-            return queueCounter("xmlque");
+            return new JavaScriptSerializer().Serialize(queueCounter("xmlque"));
         }
 
         [WebMethod]
-        public int HTMLQueueCount()
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string HTMLQueueCount()
         {
-            return queueCounter("htmlque");
+            return new JavaScriptSerializer().Serialize(queueCounter("htmlque"));
         }
 
         private int queueCounter(string quename)
         {
-            CloudQueue q = getCloudQueue("htmlque");
+            CloudQueue q = getCloudQueue(quename);
             q.FetchAttributes();
             int? queueCount = q.ApproximateMessageCount;
             return (int)queueCount;
