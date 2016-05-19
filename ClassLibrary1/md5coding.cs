@@ -5,7 +5,7 @@ namespace ClassLibrary1
 {
     public class md5coding
     {
-        public  md5coding(string input)
+        public md5coding(string input)
         {
             MD5 md5 = MD5.Create();
             byte[] inputBytes = Encoding.ASCII.GetBytes(input);
@@ -15,7 +15,7 @@ namespace ClassLibrary1
             {
                 sb.Append(hash[i].ToString("X2"));
             }
-            this.encoded =  sb.ToString();
+            this.encoded = sb.ToString();
         }
 
         public string encoded { get; set; }

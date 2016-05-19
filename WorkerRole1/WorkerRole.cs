@@ -14,6 +14,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using HtmlAgilityPack;
 using System.IO;
 using ClassLibrary1;
+using RobotsTxt;
 
 namespace WorkerRole1
 {
@@ -22,29 +23,34 @@ namespace WorkerRole1
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
 
-        private static List<string> allowList;
-        private static List<string> disallowList;
+        private static Dictionary<Uri, Robots> robotsdic;
+
         private CloudTable table;
         private CloudTable recentten;
         private CloudTable errortable;
         private CloudQueue htmlqueue;
         private CloudQueue xmlqueue;
         private CloudQueue stopgo;
-        private CloudStorageAccount storageAccount;
+        private List<int> memlist;
+        private List<int> cpulist;
+
         private int totalurl;
+        private static HashSet<string> htmllist;
 
         public override void Run()
         {
-            storageAccount = CloudStorageAccount.Parse(
-                ConfigurationManager.AppSettings["StorageConnectionString"]);
+            memlist = new List<int>();
+            cpulist = new List<int>();
             table = getCloudTable("resulttable");
             recentten = getCloudTable("lastten");
             errortable = getCloudTable("errortable1");
             htmlqueue = getCloudQueue("htmlque");
             xmlqueue = getCloudQueue("xmlque");
             stopgo = getCloudQueue("stopgo");
+
             totalurl = 0;
-            addInitiallink();
+            htmllist = new HashSet<string>();
+            robotsdic = new Dictionary<Uri, Robots>();
 
             bool checkstoporgo = true;
             while (true)
@@ -55,16 +61,10 @@ namespace WorkerRole1
             }
         }
 
-        private void addInitiallink()
-        {
-            CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
-            CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
-            //xmlqueue.AddMessage(message);
-            xmlqueue.AddMessage(message1);
-        }
-
         private CloudQueue getCloudQueue(string name)
         {
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             CloudQueue queue = queueClient.GetQueueReference(name);
             queue.CreateIfNotExists();
@@ -74,6 +74,8 @@ namespace WorkerRole1
 
         private CloudTable getCloudTable(string name)
         {
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference(name);
             table.CreateIfNotExists();
@@ -83,12 +85,13 @@ namespace WorkerRole1
 
         public bool getXML(bool check)
         {
+            //htmlqueue = getCloudQueue("htmlque");
             if (check)
             {
-                HashSet<string> htmllist = new HashSet<string>();
                 while (check)
                 {
                     Thread.Sleep(100);
+                    new Task(getSysInfo).Start();
                     CloudQueueMessage xmlLink = xmlqueue.GetMessage();
 
                     if (xmlLink == null) { break; }
@@ -147,25 +150,25 @@ namespace WorkerRole1
                                 //check if younger than 2 months
                                 if (fixedDate < pubdate)
                                 {
-                                    if (locElement.EndsWith(".xml"))
+                                    if (locElement.EndsWith(".xml") || locElement.EndsWith(".gz"))
                                     {
                                         CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                                        xmlqueue.AddMessage(message1);
+                                        xmlqueue.AddMessageAsync(message1);
                                     }
                                     else
                                     {
-                                        //.html or no .html links but not XML links
+                                        //.html or no .html links
                                         if (!htmllist.Contains(locElement))
                                         {
                                             htmllist.Add(locElement);
                                             CloudQueueMessage message1 = new CloudQueueMessage(locElement);
-                                            htmlqueue.AddMessage(message1);
+                                            htmlqueue.AddMessageAsync(message1);
                                         }
                                     }
                                 }
                             }
                         }
-                        catch { }
+                        catch (Exception e) { string errormsg = e.Message; }
                     }
                     check = checkgostop(check);
                 }
@@ -175,7 +178,7 @@ namespace WorkerRole1
 
         private bool checkgostop(bool currentstate)
         {
-            
+            //stopgo = getCloudQueue("stopgo");
             CloudQueueMessage stoporgo = stopgo.GetMessage();
             if (stoporgo == null)
             {
@@ -197,20 +200,17 @@ namespace WorkerRole1
         {
             if (check)
             {
-                List<string> result = new List<string>();
-                Uri cnn = new Uri("http://cnn.com/");
-                Uri bleach = new Uri("http://bleacherreport.com/");
                 HashSet<string> urlList = new HashSet<string>();
                 HashSet<string> tableList = new HashSet<string>();
-
+                //htmlqueue = getCloudQueue("htmlque");
                 List<string> lasttenadded = new List<string>();
                 HtmlWeb hw = new HtmlWeb();
                 pagetitle urlTableElement;
                 HtmlDocument webpage = new HtmlDocument();
-                
                 while (check)
                 {
                     Thread.Sleep(100);
+                    new Task(getSysInfo).Start();
                     CloudQueueMessage xmlLink = htmlqueue.GetMessage();
                     if (xmlLink == null) { break; }
                     else if (!tableList.Contains(xmlLink.AsString))
@@ -246,7 +246,7 @@ namespace WorkerRole1
                                 stripwww = "http://" + stripwww;
 
                                 urlTableElement = new pagetitle(temptitle, stripwww, pubdate1);
-                                TableOperation insertOp = TableOperation.Insert(urlTableElement);
+                                TableOperation insertOp = TableOperation.InsertOrReplace(urlTableElement);
                                 table.Execute(insertOp);
                                 lasttenadded = updateUrl(lasttenadded, url, recentten, totalurl);
                                 if (webpage.DocumentNode.SelectNodes("//a[@href]") != null)
@@ -266,31 +266,15 @@ namespace WorkerRole1
                                         if (templink.StartsWith("http"))
                                         {
                                             Uri currentUri2 = new Uri(templink);
-                                            if (cnn.IsBaseOf(currentUri2) || bleach.IsBaseOf(currentUri2))
+                                            foreach (Uri root in robotsdic.Keys)
                                             {
-                                                if (!urlList.Contains(templink))
+                                                if (root.IsBaseOf(currentUri2) && !urlList.Contains(templink))
                                                 {
-                                                    bool checkdisallow = true;
-                                                    foreach (string disallowlink in disallowList)
-                                                    {
-                                                        if (templink.Contains(disallowlink))
-                                                        {
-                                                            checkdisallow = false;
-                                                            foreach (string allowlink in allowList)
-                                                            {
-                                                                if (templink.Contains(allowlink))
-                                                                {
-                                                                    checkdisallow = true;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (checkdisallow)
+                                                    if (robotsdic[root].IsPathAllowed("*", currentUri2.AbsolutePath))
                                                     {
                                                         urlList.Add(templink);
-                                                        result.Add(templink);
                                                         CloudQueueMessage message1 = new CloudQueueMessage(templink);
-                                                        htmlqueue.AddMessage(message1);
+                                                        htmlqueue.AddMessageAsync(message1);
                                                     }
                                                 }
                                             }
@@ -305,7 +289,8 @@ namespace WorkerRole1
                                 {
                                     urlList.Add(xmlLink.AsString);
                                     errortitle urlerrorElement = new errortitle(xmlLink.AsString, e.Message);
-                                    TableOperation insertOp = TableOperation.Insert(urlerrorElement);
+                                    TableOperation insertOp = TableOperation.InsertOrReplace(urlerrorElement);
+                                    //errortable = getCloudTable("errortable1");
                                     errortable.Execute(insertOp);
                                 }
                             }
@@ -339,12 +324,14 @@ namespace WorkerRole1
                 updateURL.count = updateURL.count + 1;
                 updateURL.totalurl = totalurl;
                 TableOperation insertOrReplaceOperation = TableOperation.InsertOrReplace(updateURL);
+                //recentten = getCloudTable("lastten");
                 recentten.Execute(insertOrReplaceOperation);
             }
             else
             {
                 resenturl lasttentitles = new resenturl(lasttenadded.ToString(), totalurl);
                 TableOperation insertOp = TableOperation.Insert(lasttentitles);
+                //recentten = getCloudTable("lastten");
                 recentten.Execute(insertOp);
             }
             return lasttenadded;
@@ -352,42 +339,42 @@ namespace WorkerRole1
 
         private void addRobotstxt(string robotslink)
         {
-            if (allowList == null || disallowList == null)
-            {
-                allowList = new List<string>();
-                disallowList = new List<string>();
-            }
+            List<string> xmllist = new List<string>();
             WebClient client = new WebClient();
             Stream stream = client.OpenRead(robotslink);
             StreamReader reader = new StreamReader(stream);
-            //string domain = robotslink.Replace("/robots.txt", "");
-            Uri domain = new Uri(robotslink);
+            robotslink = robotslink.Replace("/robots.txt", "");
+            Uri rootdomain = new Uri(robotslink);
+            bool sitemapnotfound = true;
             while (!reader.EndOfStream)
             {
                 string temp = reader.ReadLine();
                 if (temp.StartsWith("Sitemap:"))
                 {
-                    //sitemap .xml files
                     temp = temp.Replace("Sitemap: ", "");
-                    if (temp.Contains("cnn.com") || temp.Contains("/nba"))
+                    if (!xmllist.Contains(temp) && (temp.Contains("cnn.com") || temp.Contains("/nba") || temp.Contains("imdb.com")
+                        || temp.Contains("bbc.com") || temp.Contains("espn.go.com")
+                        || temp.Contains("forbes.com") || temp.Contains("wikipedia.org")))
                     {
+                        xmllist.Add(temp);
+                        sitemapnotfound = false;
                         CloudQueueMessage message = new CloudQueueMessage(temp);
-                        xmlqueue.AddMessage(message);
+                        xmlqueue.AddMessageAsync(message);
                     }
                 }
-                else if (temp.StartsWith("Disallow:"))
-                {
-                    temp = temp.Replace("Disallow: ", "");
-                    disallowList.Add(domain.Host + temp);
-                }
-                else if (temp.StartsWith("Allow:"))
-                {
-                    temp = temp.Replace("Allow: ", "");
-                    allowList.Add(domain.Host + temp);
-                }
             }
+            if (sitemapnotfound)
+            {
+                CloudQueueMessage message = new CloudQueueMessage("http://" + rootdomain.Host);
+                htmlqueue.AddMessageAsync(message);
+                htmllist.Add(rootdomain.Host);
+            }
+            Stream stream2 = client.OpenRead(robotslink);
+            StreamReader reader2 = new StreamReader(stream2);
+            string contents = reader2.ReadToEnd();
+            Robots robot = Robots.Load(contents);
+            robotsdic.Add(rootdomain, robot);
         }
-
 
 
         public override bool OnStart()
@@ -415,6 +402,39 @@ namespace WorkerRole1
             base.OnStop();
 
             Trace.TraceInformation("WorkerRole1 has stopped");
+        }
+        private void getSysInfo()
+        {
+            
+            if (memlist.Count > 100)
+            {
+                memlist.RemoveAt(0);
+                cpulist.RemoveAt(0);
+            }
+            PerformanceCounter theCPUCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            PerformanceCounter theMemCounter = new PerformanceCounter("Memory", "Available MBytes");
+            theCPUCounter.NextValue();
+            Thread.Sleep(500);
+            cpulist.Add((int)theCPUCounter.NextValue());
+            memlist.Add((int)theMemCounter.NextValue());
+
+            TableOperation retrieveOperation = TableOperation.Retrieve<resenturl>("memory", "cpu");
+            TableResult retrievedResult = recentten.Execute(retrieveOperation);
+            resenturl updateURL = (resenturl)retrievedResult.Result;
+            if (updateURL != null)
+            {
+                updateURL.memorylist = string.Join(",", memlist.ToArray());
+                updateURL.cpulist = string.Join(",", cpulist.ToArray());
+                TableOperation insertOrReplaceOperation = TableOperation.InsertOrReplace(updateURL);
+                recentten.Execute(insertOrReplaceOperation);
+            }
+            else
+            {
+                resenturl lasttentitles = new resenturl(string.Join(",", memlist.ToArray()), 
+                    string.Join(",", cpulist.ToArray()));
+                TableOperation insertOp = TableOperation.Insert(lasttentitles);
+                recentten.Execute(insertOp);
+            }
         }
 
         private async Task RunAsync(CancellationToken cancellationToken)

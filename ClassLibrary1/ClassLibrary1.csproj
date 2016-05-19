@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B6B4EEB1-8CAB-4018-9B65-3DCFF3496BEC}</ProjectGuid>
+    <ProjectGuid>{8FE1B5FB-5247-411C-B591-965BCF721A12}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ClassLibrary1</RootNamespace>
@@ -72,8 +72,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="md5coding.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="errortitle.cs" />
+    <Compile Include="md5coding.cs" />
     <Compile Include="pagetitle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="resenturl.cs" />
