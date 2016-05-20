@@ -1,17 +1,17 @@
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Emulator config file set to C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] DiagnosticsStoreRootPath set to: C:\Users\iGuest\AppData\Local\dftmp\Resources\d4650ebc-0f66-4adf-879b-47741df7e827
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Loading config file: C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Config file to read: C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Checking VM Type
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Emulator config file set to C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Extension set to Emulator Mode
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Reading XML configuration file
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Bypassing private config decryption
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:51 AM] Stopping the running plugin, if any
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:52 AM] No DiagnosticsPlugin is running.
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:52 AM] Killing any DiagnosticsPlugin that might remain.
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:52 AM] Killing any MonAgentHost that might remain.
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:52 AM] Diagnostics plugin stopped successfully
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:52 AM] Resetting DiagnosticPlugin
-DiagnosticsPluginLauncher.exe Error: 0 : [5/20/2016 12:37:53 AM] DiagnosticsPlugin launch failed with exit code -106
-DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 12:37:53 AM] DiagnosticPlugin exited with code -106
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Emulator config file set to C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] DiagnosticsStoreRootPath set to: C:\Users\iGuest\AppData\Local\dftmp\Resources\8375ac9c-f2ed-43a4-a9e6-89e8b0b18c42
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Loading config file: C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Config file to read: C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Checking VM Type
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Emulator config file set to C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\csx\Debug\roles\WebRole1\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Extension set to Emulator Mode
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Reading XML configuration file
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Bypassing private config decryption
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Stopping the running plugin, if any
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] No DiagnosticsPlugin is running.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:31 AM] Killing any DiagnosticsPlugin that might remain.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:32 AM] Killing any MonAgentHost that might remain.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:32 AM] Diagnostics plugin stopped successfully
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:32 AM] Resetting DiagnosticPlugin
+DiagnosticsPluginLauncher.exe Error: 0 : [5/20/2016 4:30:33 AM] DiagnosticsPlugin launch failed with exit code -106
+DiagnosticsPluginLauncher.exe Information: 0 : [5/20/2016 4:30:33 AM] DiagnosticPlugin exited with code -106

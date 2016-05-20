@@ -116,6 +116,7 @@ path {
 .aGraph {
     width: 45%;
     float:left;
+    
 }
 
 #chartarea {
@@ -146,4 +147,19 @@ h2 {
     padding-left: 10%;
     font-weight: 100;
     font-size: 20pt;
+}
+
+.graphheading {
+   margin-left: 15%;
+   margin-right: 10%;
+   width: 20%;
+   float: left;
+   text-align:left;
+   font-weight: 100;
+   font-size: 20pt;
+   color: white;
+}
+
+#memgraph {
+    clear: left;
 }

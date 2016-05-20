@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<serviceModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="bmocrawler" generation="1" functional="0" release="0" Id="a37f0d8b-fbe0-42b8-8eba-da75912becb1" dslVersion="1.2.0.0" xmlns="http://schemas.microsoft.com/dsltools/RDSM">
+<serviceModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="bmocrawler" generation="1" functional="0" release="0" Id="913d724c-8c36-4bd0-843c-a0234fee4071" dslVersion="1.2.0.0" xmlns="http://schemas.microsoft.com/dsltools/RDSM">
   <groups>
     <group name="bmocrawlerGroup" generation="1" functional="0" release="0">
       <componentports>
@@ -110,9 +110,9 @@
     </group>
   </groups>
   <implements>
-    <implementation Id="e79a384b-e1bd-4b0c-b50a-431014be0bbd" ref="Microsoft.RedDog.Contract\ServiceContract\bmocrawlerContract@ServiceDefinition">
+    <implementation Id="6b052b65-949b-415d-acbe-d7f4bf1d94df" ref="Microsoft.RedDog.Contract\ServiceContract\bmocrawlerContract@ServiceDefinition">
       <interfacereferences>
-        <interfaceReference Id="f705a072-8bb2-44d2-9130-eae486046059" ref="Microsoft.RedDog.Contract\Interface\WebRole1:Endpoint1@ServiceDefinition">
+        <interfaceReference Id="41519037-db30-42ff-99a1-1f3b9735bf00" ref="Microsoft.RedDog.Contract\Interface\WebRole1:Endpoint1@ServiceDefinition">
           <inPort>
             <inPortMoniker name="/bmocrawler/bmocrawlerGroup/WebRole1:Endpoint1" />
           </inPort>

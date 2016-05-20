@@ -44,6 +44,8 @@ namespace WebRole1
             start = true;
         }
 
+        //starts the crwal, if the user hits for the first time the message with all the robots.txt will go 
+        //into the queue. If the process was stopped, on the go queue will go in.
         [WebMethod]
         public string restart()
         {
@@ -64,7 +66,7 @@ namespace WebRole1
                 xmlqueue.AddMessage(message);
                 xmlqueue.AddMessage(message1);
                 xmlqueue.AddMessage(message3);
-                //xmlqueue.AddMessage(message4);
+                xmlqueue.AddMessage(message4);
                 xmlqueue.AddMessage(message5);
                 xmlqueue.AddMessage(message6);
                 start = false;
@@ -74,6 +76,7 @@ namespace WebRole1
             return "GO";
         }
 
+        //sends a message to stop the crawl
         [WebMethod]
         public string stopCrawl()
         {
@@ -83,6 +86,7 @@ namespace WebRole1
             return "STOP";
         }
 
+        //clears the index, deletes all the tables and clears the queues sleeps for 40sec.
         [WebMethod]
         public string clearIndex()
         {
@@ -108,6 +112,7 @@ namespace WebRole1
             return queue;
         }
 
+        //grabs the cloud table, if the cloud table does not exist creats a new table
         private CloudTable getCloudTable(string name)
         {
             Queue<string> que = new Queue<string>();
@@ -120,7 +125,7 @@ namespace WebRole1
             return table;
         }
 
-
+        //grabs a long string which holds the last ten urls inserted
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string lasttenpages()
@@ -134,6 +139,7 @@ namespace WebRole1
             return new JavaScriptSerializer().Serialize(new pagetitle());
         }
 
+        //retrieves the CPU and memory data from the cloud table
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string graphData()
@@ -147,6 +153,7 @@ namespace WebRole1
             return new JavaScriptSerializer().Serialize(new pagetitle());
         }
 
+        //retrieves the error urls from cloud table
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string getErrortable()
@@ -161,7 +168,8 @@ namespace WebRole1
             return new JavaScriptSerializer().Serialize(errordic);
         }
 
-
+        //this method searches the cloud table to retrieve the title.
+        //If not found, the url not found is sent
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string searchURL(string search)
@@ -181,6 +189,9 @@ namespace WebRole1
 
         }
 
+        //the user can add additional websites to parse.
+        //It can be in the form of cnn.com, www.cnn.com, http://cnn.com it will all get http://www.cnn.com/robots.txt
+        //then adds it to the xml queue to read
         [WebMethod]
         public string addURL(string search)
         {

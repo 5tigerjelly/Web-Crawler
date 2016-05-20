@@ -37,6 +37,7 @@ namespace WorkerRole1
         private static int totalurl;
         private static HashSet<string> htmllist;
 
+        //This is the main run method for the worker role
         public override void Run()
         {
             memlist = new List<int>();
@@ -58,9 +59,11 @@ namespace WorkerRole1
                 checkstoporgo = checkgostop(checkstoporgo);
                 checkstoporgo = getXML(checkstoporgo);
                 checkstoporgo = getHref(checkstoporgo);
+                new Task(getSysInfo).Start();
             }
         }
 
+        //grabs the gloudqueue
         private CloudQueue getCloudQueue(string name)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
@@ -72,6 +75,7 @@ namespace WorkerRole1
             return queue;
         }
 
+        //grabs the cloud table
         private CloudTable getCloudTable(string name)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
@@ -83,6 +87,9 @@ namespace WorkerRole1
             return table;
         }
 
+        //Reads the XML queue and if there is a job ticket, the method will parse the
+        //robots.txt file or the .xml file. if xml files found they are put into the
+        //xml queue again to read later. If an .html link is found, put into the html queue
         public bool getXML(bool check)
         {
             if (check)
@@ -96,6 +103,7 @@ namespace WorkerRole1
                     if (xmlLink == null) { break; }
                     else if (xmlLink.AsString.EndsWith("robots.txt"))
                     {
+                        //robots.txt is found
                         addRobotstxt(xmlLink.AsString);
                         xmlqueue.DeleteMessage(xmlLink);
                     }
@@ -103,10 +111,9 @@ namespace WorkerRole1
                     {
                         try
                         {
-                            //xml
+                            //xml or gz file is found
                             XElement sitemap = XElement.Load(xmlLink.AsString);
-                            xmlqueue.DeleteMessage(xmlLink);
-
+                            
                             XName url = XName.Get("url", "http://www.sitemaps.org/schemas/sitemap/0.9");
                             XName urlX = XName.Get("url", "http://www.google.com/schemas/sitemap/0.9");
                             XName loc = XName.Get("loc", "http://www.sitemaps.org/schemas/sitemap/0.9");
@@ -166,8 +173,12 @@ namespace WorkerRole1
                                     }
                                 }
                             }
+                            xmlqueue.DeleteMessage(xmlLink);
                         }
-                        catch (Exception e) { string errormsg = e.Message; }
+                        catch (Exception e)
+                        {
+                            xmlqueue.DeleteMessage(xmlLink);
+                        }
                     }
                     check = checkgostop(check);
                 }
@@ -175,6 +186,7 @@ namespace WorkerRole1
             return check;
         }
 
+        //This function checks the stopgo queue to see if the user stopped the crawl
         private bool checkgostop(bool currentstate)
         {
             CloudQueueMessage stoporgo = stopgo.GetMessage();
@@ -194,6 +206,9 @@ namespace WorkerRole1
             }
         }
 
+        //This method will grab all the href links inside the webpage
+        //If the link found is new and valid will be put in the queue again
+        //to store in the queue later.
         public bool getHref(bool check)
         {
             if (check)
@@ -207,6 +222,7 @@ namespace WorkerRole1
                 while (check)
                 {
                     Thread.Sleep(100);
+                    //calls the getSysInfo function async
                     new Task(getSysInfo).Start();
                     CloudQueueMessage xmlLink = htmlqueue.GetMessage();
                     if (xmlLink == null) { break; }
@@ -214,7 +230,6 @@ namespace WorkerRole1
                     {
                         string url = xmlLink.AsString;
                         tableList.Add(url);
-                        ///
                         using (var client = new WebClient())
                         {
                             try
@@ -262,19 +277,23 @@ namespace WorkerRole1
                                         }
                                         if (templink.StartsWith("http"))
                                         {
-                                            Uri currentUri2 = new Uri(templink);
-                                            foreach (Uri root in robotsdic.Keys)
+                                            try
                                             {
-                                                if (root.IsBaseOf(currentUri2) && !urlList.Contains(templink))
+                                                Uri currentUri2 = new Uri(templink);
+                                                foreach (Uri root in robotsdic.Keys)
                                                 {
-                                                    if (robotsdic[root].IsPathAllowed("*", currentUri2.AbsolutePath))
+                                                    if (root.IsBaseOf(currentUri2) && !urlList.Contains(templink))
                                                     {
-                                                        urlList.Add(templink);
-                                                        CloudQueueMessage message1 = new CloudQueueMessage(templink);
-                                                        htmlqueue.AddMessageAsync(message1);
+                                                        if (robotsdic[root].IsPathAllowed("*", currentUri2.AbsolutePath))
+                                                        {
+                                                            urlList.Add(templink);
+                                                            CloudQueueMessage message1 = new CloudQueueMessage(templink);
+                                                            htmlqueue.AddMessageAsync(message1);
+                                                        }
                                                     }
                                                 }
                                             }
+                                            catch { }
                                         }
                                     }
                                 }
@@ -331,6 +350,8 @@ namespace WorkerRole1
             return lasttenadded;
         }
 
+        //when a robots.txt if found it will download the file and parse it.
+        //external RobotsTxt packet was used to check allowed and disallowed.
         private void addRobotstxt(string robotslink)
         {
             List<string> xmllist = new List<string>();
@@ -397,6 +418,8 @@ namespace WorkerRole1
 
             Trace.TraceInformation("WorkerRole1 has stopped");
         }
+
+        //This function stores the system performance information in the cloud table.
         private void getSysInfo()
         {
             

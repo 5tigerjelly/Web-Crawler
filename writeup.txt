@@ -28,9 +28,15 @@ relevant information as soon as it is ready.
 If the user hits the 'STOP' button, the web role will send a message to the queue
 telling the worker role to stop the crawl. When the user presses the 'GO' button 
 again the crawler will not add the websites back into the queue but resume the
-crawl from where it was left off. If the user hits the clear button, the web role will delete the tables.
+crawl from where it was left off. If the user hits the clear button, the web role 
+will delete the tables.
 
 On the dashboard, there are the HTML queue size, crawled number, links found, current
 state of the worker role, memory and CPU usage of the CPU of the worker role. The 
 user can search for the website by typing the HTML link and by clicking on any of the
 recent URLs. The search will be done automatically.
+
+Something I have learned to optimize the process was to send the URLs found asynchronously.
+This was a very important part in reducing the speed, because the worker role does not
+have to wait for a response. This increased my process from 10~20 messages per second to
+150~250 messages per second.

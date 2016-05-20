@@ -12,25 +12,9 @@
         document.getElementById("refresh").onclick = clearsite;
         document.getElementById("stop").onclick = stop;
         document.getElementById("addmorelink").onclick = addmorelink;
-        document.getElementById("test").onclick = loadGraph;
         var myVar = setInterval(function () { refreshsite() }, 1000);
+        var myVar2 = setInterval(function () { loadGraph() }, 1000);
     };
-
-    function adderrortest() {
-
-        var outer2 = document.createElement("tbody");
-        var outer = document.createElement("tr");
-        var innerurl = document.createElement("td");
-        var innertype = document.createElement("td");
-        outer.class = "removableerror";
-        innerurl.class = "removableerror";
-        innerurl.innerHTML = "cnn.com";
-        innertype.innerHTML = "no reason";
-        outer.appendChild(innerurl);
-        outer.appendChild(innertype);
-        outer2.appendChild(outer);
-        document.getElementById("errortable").appendChild(outer2);
-    }
 
     function addmorelink() {
         $.ajax({
@@ -77,7 +61,10 @@
                 url: "admin2.asmx/searchURL",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                    document.getElementById("searchresult").innerHTML = data.d;
+                    var lasttendata = JSON.parse(data.d);
+                    document.getElementById("searchresult").innerHTML = lasttendata.title;
+                    var date = new Date(parseInt(lasttendata.pubdate.substr(6)));
+                    document.getElementById("pubdate").innerHTML = date;
                 }
             });
         }
@@ -85,7 +72,6 @@
 
     function refreshsite() {
         if (!clearing) {
-            loadGraph();
 
             $.ajax({
                 type: "POST",
@@ -134,12 +120,7 @@
                         outer.appendChild(innertype);
                         outer2.appendChild(outer);
                     });
-
-
                     document.getElementById("errortable").appendChild(outer2);
-
-                    // var new_tbody = document.createElement('tbody');
-                    // populate_with_new_rows(new_tbody);
                     var old_tbody = document.getElementById("oldtable");
                     old_tbody.parentNode.replaceChild(outer2, old_tbody)
                 }
@@ -172,6 +153,12 @@
                         if (totalcount > 1000000) {
                             totalcount = Math.round(totalcount / 1000);
                             totalcount = totalcount + "k";
+                        } else if (totalcount > 1000000000) {
+                            totalcount = Math.round(totalcount / 1000000);
+                            totalcount = totalcount + "M";
+                        } else if (totalcount > 1000000000000) {
+                            totalcount = Math.round(totalcount / 1000000000);
+                            totalcount = totalcount + "B";
                         }
                         document.getElementById("totalfound").innerHTML = totalcount;
                     } else {
@@ -184,16 +171,12 @@
             if (!crwaling) {
                 document.getElementById("state").innerHTML = "Idle";
             } else if (xmlcount == 0 && htmlcount == 0) {
-                //idle
                 document.getElementById("state").innerHTML = "Idle";
             } else if (xmlcount > 0) {
-                //loading
                 document.getElementById("state").innerHTML = "Loading";
             } else if (htmlcount > 0) {
-                //crwaling
                 document.getElementById("state").innerHTML = "Crawling";
             } else {
-                //stopped
                 document.getElementById("state").innerHTML = "Idle";
             }
         }
