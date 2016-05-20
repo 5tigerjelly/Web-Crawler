@@ -49,7 +49,10 @@ namespace WebRole1
         {
             if (start)
             {
-                
+                table = getCloudTable("resulttable");
+                recentten = getCloudTable("lastten");
+                errortable = getCloudTable("errortable1");
+
                 CloudQueueMessage message = new CloudQueueMessage("http://cnn.com/robots.txt");
                 CloudQueueMessage message1 = new CloudQueueMessage("http://bleacherreport.com/robots.txt");
                 CloudQueueMessage message2 = new CloudQueueMessage("http://www.imdb.com/robots.txt");
@@ -58,11 +61,10 @@ namespace WebRole1
                 CloudQueueMessage message5 = new CloudQueueMessage("http://espn.go.com/robots.txt");
                 CloudQueueMessage message6 = new CloudQueueMessage("http://www.forbes.com/robots.txt");
                 
-
                 xmlqueue.AddMessage(message);
                 xmlqueue.AddMessage(message1);
                 xmlqueue.AddMessage(message3);
-                xmlqueue.AddMessage(message4);
+                //xmlqueue.AddMessage(message4);
                 xmlqueue.AddMessage(message5);
                 xmlqueue.AddMessage(message6);
                 start = false;
@@ -90,9 +92,7 @@ namespace WebRole1
             xmlqueue.Clear();
             htmlqueue.Clear();
             Thread.Sleep(40000);
-            table = getCloudTable("resulttable");
-            recentten = getCloudTable("lastten");
-            errortable = getCloudTable("errortable1");
+            start = true;
             return "Done Clearing";
         }
 
@@ -163,6 +163,7 @@ namespace WebRole1
 
 
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string searchURL(string search)
         {
             string stripwww = formateURL(search);
@@ -171,7 +172,7 @@ namespace WebRole1
             TableResult retrievedResult = table.Execute(retrieveOperation);
             if (retrievedResult.Result != null)
             {
-                return ((pagetitle)retrievedResult.Result).title;
+                return new JavaScriptSerializer().Serialize(retrievedResult.Result);
             }
             else
             {

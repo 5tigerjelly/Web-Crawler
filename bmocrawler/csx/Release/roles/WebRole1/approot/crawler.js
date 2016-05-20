@@ -17,8 +17,7 @@
     };
 
     function adderrortest() {
-        // var x = document.getElementsByClassName("example");
-        // document.getElementById("errortable").removeChild();
+
         var outer2 = document.createElement("tbody");
         var outer = document.createElement("tr");
         var innerurl = document.createElement("td");
@@ -31,9 +30,6 @@
         outer.appendChild(innertype);
         outer2.appendChild(outer);
         document.getElementById("errortable").appendChild(outer2);
-        // var new_tbody = document.createElement('tbody');
-        // populate_with_new_rows(new_tbody);
-        // old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
     }
 
     function addmorelink() {

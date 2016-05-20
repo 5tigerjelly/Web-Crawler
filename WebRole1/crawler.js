@@ -12,7 +12,6 @@
         document.getElementById("refresh").onclick = clearsite;
         document.getElementById("stop").onclick = stop;
         document.getElementById("addmorelink").onclick = addmorelink;
-        document.getElementById("test").onclick = loadGraph;
         var myVar = setInterval(function () { refreshsite() }, 1000);
     };
 
@@ -77,7 +76,10 @@
                 url: "admin2.asmx/searchURL",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                    document.getElementById("searchresult").innerHTML = data.d;
+                    var lasttendata = JSON.parse(data.d);
+                    document.getElementById("searchresult").innerHTML = lasttendata.title;
+                    var date = new Date(parseInt(lasttendata.pubdate.substr(6)));
+                    document.getElementById("pubdate").innerHTML = date;
                 }
             });
         }

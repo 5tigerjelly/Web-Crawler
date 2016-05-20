@@ -25,16 +25,16 @@ namespace WorkerRole1
 
         private static Dictionary<Uri, Robots> robotsdic;
 
-        private CloudTable table;
-        private CloudTable recentten;
-        private CloudTable errortable;
-        private CloudQueue htmlqueue;
-        private CloudQueue xmlqueue;
-        private CloudQueue stopgo;
-        private List<int> memlist;
-        private List<int> cpulist;
+        private static CloudTable table;
+        private static CloudTable recentten;
+        private static CloudTable errortable;
+        private static CloudQueue htmlqueue;
+        private static CloudQueue xmlqueue;
+        private static CloudQueue stopgo;
+        private static List<int> memlist;
+        private static List<int> cpulist;
 
-        private int totalurl;
+        private static int totalurl;
         private static HashSet<string> htmllist;
 
         public override void Run()
@@ -85,7 +85,6 @@ namespace WorkerRole1
 
         public bool getXML(bool check)
         {
-            //htmlqueue = getCloudQueue("htmlque");
             if (check)
             {
                 while (check)
@@ -178,7 +177,6 @@ namespace WorkerRole1
 
         private bool checkgostop(bool currentstate)
         {
-            //stopgo = getCloudQueue("stopgo");
             CloudQueueMessage stoporgo = stopgo.GetMessage();
             if (stoporgo == null)
             {
@@ -202,7 +200,6 @@ namespace WorkerRole1
             {
                 HashSet<string> urlList = new HashSet<string>();
                 HashSet<string> tableList = new HashSet<string>();
-                //htmlqueue = getCloudQueue("htmlque");
                 List<string> lasttenadded = new List<string>();
                 HtmlWeb hw = new HtmlWeb();
                 pagetitle urlTableElement;
@@ -290,7 +287,6 @@ namespace WorkerRole1
                                     urlList.Add(xmlLink.AsString);
                                     errortitle urlerrorElement = new errortitle(xmlLink.AsString, e.Message);
                                     TableOperation insertOp = TableOperation.InsertOrReplace(urlerrorElement);
-                                    //errortable = getCloudTable("errortable1");
                                     errortable.Execute(insertOp);
                                 }
                             }
@@ -324,14 +320,12 @@ namespace WorkerRole1
                 updateURL.count = updateURL.count + 1;
                 updateURL.totalurl = totalurl;
                 TableOperation insertOrReplaceOperation = TableOperation.InsertOrReplace(updateURL);
-                //recentten = getCloudTable("lastten");
                 recentten.Execute(insertOrReplaceOperation);
             }
             else
             {
                 resenturl lasttentitles = new resenturl(lasttenadded.ToString(), totalurl);
-                TableOperation insertOp = TableOperation.Insert(lasttentitles);
-                //recentten = getCloudTable("lastten");
+                TableOperation insertOp = TableOperation.InsertOrReplace(lasttentitles);
                 recentten.Execute(insertOp);
             }
             return lasttenadded;
@@ -432,7 +426,7 @@ namespace WorkerRole1
             {
                 resenturl lasttentitles = new resenturl(string.Join(",", memlist.ToArray()), 
                     string.Join(",", cpulist.ToArray()));
-                TableOperation insertOp = TableOperation.Insert(lasttentitles);
+                TableOperation insertOp = TableOperation.InsertOrReplace(lasttentitles);
                 recentten.Execute(insertOp);
             }
         }

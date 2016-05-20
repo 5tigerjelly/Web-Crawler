@@ -25,7 +25,7 @@
     </Endpoints>
     <Contents>
       <Content destination=".\">
-        <SourceDirectory path="C:\Users\iGuest\Desktop\bmocrawler2-robots4\bmocrawler\rcf\Release\WebRole1Content\" />
+        <SourceDirectory path="C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\rcf\Release\WebRole1Content\" />
       </Content>
     </Contents>
   </WebRole>
@@ -35,7 +35,7 @@
     </ConfigurationSettings>
     <Contents>
       <Content destination=".\">
-        <SourceDirectory path="C:\Users\iGuest\Desktop\bmocrawler2-robots4\bmocrawler\rcf\Release\WorkerRole1Content\" />
+        <SourceDirectory path="C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\rcf\Release\WorkerRole1Content\" />
       </Content>
     </Contents>
   </WorkerRole>

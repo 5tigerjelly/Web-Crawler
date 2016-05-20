@@ -1,0 +1,27 @@
+Bummook Oh 1239912
+INFO 344  SP16
+
+Programming Assignment 3 Web Crawler
+
+
+
+---------------------------------------------------------------
+Graphical dashboard (shows stats over time)
+
+To implement the graphical dashboard, I stored the CPU and memory
+information in another table. Every time the ajax call is made to 
+the web role, the web role will return a last 100 data sets.
+In the js file, I used D3 to draw out the data. The graph is updated
+every 1 second.
+
+---------------------------------------------------------------
+Crawl more root domains
+
+I was able to crawl IMDB, Forbes, ESPN, and Wikipedia. I used a
+packet called RobotsTxt and stored the robot in a dictionary 
+with the key as domain URI and value as the robot. Therefore,
+when the website being crawler's base is in the dictionary, the
+robot would be used to check the link for allowing and disallow. 
+BBC.com was a little buggy to crawl. The .xml file pop out of
+nowhere and was added to the queue later for some reason. I 
+did not want to spend too much time debugging.

@@ -24,14 +24,14 @@
     <Property name="SetConfiguration" value="Configuration=Debug" />
     <Property name="SetPlatform" value="Platform=AnyCPU" />
     <Property name="RoleTargetFramework" value="v4.5.1" />
-    <Property name="OutputDir" value="C:\Users\iGuest\Desktop\bmocrawler2-robots4\bmocrawler\obj\Debug\WebRole1\" />
+    <Property name="OutputDir" value="C:\Users\iGuest\Desktop\Web-Crawler\bmocrawler\obj\Debug\WebRole1\" />
     <Property name="EntryPoint" value="WebRole1.dll" />
-    <Property name="SourceDir" value="C:\Users\iGuest\Desktop\bmocrawler2-robots4\WebRole1\" />
-    <Property name="SitePhysicalPath" value="C:\Users\iGuest\Desktop\bmocrawler2-robots4\WebRole1\" />
+    <Property name="SourceDir" value="C:\Users\iGuest\Desktop\Web-Crawler\WebRole1\" />
+    <Property name="SitePhysicalPath" value="C:\Users\iGuest\Desktop\Web-Crawler\WebRole1\" />
     <Property name="TargetRuntimeVersion" value="v4.0" />
   </Properties>
   <Sites>
-    <Site name="Web" physicalDirectory="C:\Users\iGuest\Desktop\bmocrawler2-robots4\WebRole1\">
+    <Site name="Web" physicalDirectory="C:\Users\iGuest\Desktop\Web-Crawler\WebRole1\">
       <Bindings>
         <Binding name="Endpoint1" endpointName="Endpoint1" />
       </Bindings>

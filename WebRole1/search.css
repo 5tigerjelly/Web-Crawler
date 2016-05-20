@@ -7,7 +7,7 @@
 }
 
 body {
-    background-color: #2E80AB;;
+    background-color: #2E80AB;
     font-family: 'Lato', sans-serif;
     font-weight: 300;
     color: #333333;
@@ -42,7 +42,7 @@ div{
 }
 
 button {
-    background-color: #4CAF50; /* Green */
+    background-color: #AB2E80; /* Green */
     border: none;
     color: white;
     padding: 15px 32px;
@@ -78,6 +78,7 @@ ul {
 
 #listoften {
     text-align:left;
+    padding-left: 10%;
 }
 
 table {
@@ -121,4 +122,28 @@ path {
     clear: left;
     margin-left: auto;
     margin-right:auto;
+}
+
+#searchresult, #listoften, #errortable, #pubdate,h2 {
+    color: white;
+}
+
+#pubdate {
+    font-size: 17pt;
+}
+
+#errortable {
+    text-align:left;
+    padding-left: 10%;
+}
+
+td {
+    width: 40%;
+}
+
+h2 {
+    text-align:left;
+    padding-left: 10%;
+    font-weight: 100;
+    font-size: 20pt;
 }
