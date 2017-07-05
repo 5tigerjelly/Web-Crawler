@@ -1,6 +1,6 @@
 # Web-Crawler
 
-##The Product
+## The Product
 
 This assignment was to create a web crawler that will crawl given sites. The 
 crawler was written in C# on the Azure platform. The project was hosted on the
@@ -8,11 +8,11 @@ Azure Cloud Service with one web role and one worker role. The two have differen
 functionality. The web role handles the dashboard.html where as the worker role
 will just crawl websites.
 
-##The Data
+## The Data
 
 Typically, a search engine crawler will index everything about a web page. For our purposes, let’s simplify the process and only index the title, URL and date (if available). Because we’re limiting the crawler to one website, the crawler should only follow links with the pattern, http://*.cnn.com/* (Links to an external site.)
 
-##The Infrastructure
+## The Infrastructure
 When the dashboard first loads, the user can trigger the 'GO' button to start the
 crawl. Once the crawling begins, the crawler will read the robots.txt file and
 grab the disallowed and allowed sites as well as the sitemap for the worker role
@@ -40,5 +40,5 @@ recent URLs. The search will be done automatically.
 
 Something I have learned to optimize the process was to send the URLs found asynchronously.
 This was a very important part in reducing the speed, because the worker role does not
-have to wait for a response. This increased my process from 10~20 messages per second to
-150~250 messages per second.
+have to wait for a response. This increased my process from 10 \~ 20 messages per second to
+150 \~ 250 messages per second.
