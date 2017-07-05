@@ -32,7 +32,7 @@ again the crawler will not add the websites back into the queue but resume the
 crawl from where it was left off. If the user hits the clear button, the web role 
 will delete the tables.
 
-##The User Interface
+## The User Interface
 On the dashboard, there are the HTML queue size, crawled number, links found, current
 state of the worker role, memory and CPU usage of the CPU of the worker role. The 
 user can search for the website by typing the HTML link and by clicking on any of the
